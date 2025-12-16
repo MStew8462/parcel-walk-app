@@ -64,7 +64,7 @@ function toggleAlphabet(forceHide = false) {
   if (forceHide) {
     alphabet.style.display = 'none';
   } else {
-    alphabet.style.display = (alphabet.style.display === 'none') ? 'flex' : 'flex';
+    alphabet.style.display = (alphabet.style.display === 'none') ? 'grid' : 'grid';
   }
 }
 
