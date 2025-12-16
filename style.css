@@ -57,22 +57,31 @@
 
 #results li {
   display: flex;
-  justify-content: flex-start;
-  padding: 2px 6px;
+  justify-content: space-between; /* road left, number right */
+  padding: 2px 12px;              /* space from edges */
   font-size: 15px;
   line-height: 1.2;
   border-bottom: 1px solid #ccc;
 }
 
+#results li span {
+  max-width: 75%;                  /* ensures road name doesn't overlap number */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#results li strong {
+  font-size: 14px;
+  margin-left: 12px;  /* small gap from road name */
+  flex-shrink: 0;     /* prevents number from shrinking */
+}
+
+/* Alternating row shading */
 #results li:nth-child(odd) {
   background-color: #f9f9f9;
 }
 
 #results li:nth-child(even) {
   background-color: #ffffff;
-}
-
-#results li strong {
-  font-size: 14px;
-  margin-left: 6px; /* closer to road name */
 }
