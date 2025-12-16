@@ -8,37 +8,40 @@
 /* Alphabet wrapper */
 #alphabet-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
   margin-bottom: 6px;
+}
+
+/* Alphabet grid */
+#alphabet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 6px;
+  justify-items: center; /* center buttons in each cell */
+  margin-bottom: 10px;
+  transition: all 0.2s;
 }
 
 /* Alphabet buttons */
 #alphabet button {
   font-size: 18px;
-  padding: 10px 14px;
-  margin: 2px;
+  padding: 12px 16px;
   border-radius: 6px;
   border: none;
   background-color: #007bff;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 #alphabet button:hover {
   background-color: #0056b3;
 }
 
-/* Toggle alphabet button */
-#toggle-alphabet {
+/* Shrink buttons after selection */
+#alphabet.shrink button {
   font-size: 14px;
-  padding: 4px 8px;
-  cursor: pointer;
-  background-color: #ccc;
-  border-radius: 4px;
-  border: none;
+  padding: 8px 10px;
 }
 
 /* Road list */
@@ -54,14 +57,13 @@
 
 #results li {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 2px 6px;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.2;
   border-bottom: 1px solid #ccc;
 }
 
-/* Alternating row shading */
 #results li:nth-child(odd) {
   background-color: #f9f9f9;
 }
@@ -72,5 +74,5 @@
 
 #results li strong {
   font-size: 14px;
-  margin-left: 6px;
+  margin-left: 6px; /* closer to road name */
 }

@@ -35,10 +35,7 @@ function createAlphabet() {
   letters.forEach(letter => {
     const btn = document.createElement('button');
     btn.textContent = letter;
-    btn.onclick = () => {
-      showRoads(letter);
-      toggleAlphabet(true); // hide alphabet after selection
-    };
+    btn.onclick = () => showRoads(letter);
     alphabetDiv.appendChild(btn);
   });
 }
@@ -56,31 +53,7 @@ function showRoads(letter) {
       li.innerHTML = `<span>${r.Road}</span><strong>${r.Walk}</strong>`;
       results.appendChild(li);
     });
+
+  // Shrink alphabet buttons after selection
+  document.getElementById('alphabet').classList.add('shrink');
 }
-
-// Toggle alphabet display
-function toggleAlphabet(forceHide = false) {
-  const alphabet = document.getElementById('alphabet');
-  if (forceHide) {
-    alphabet.style.display = 'none';
-  } else {
-    alphabet.style.display = (alphabet.style.display === 'none') ? 'grid' : 'grid';
-  }
-}
-
-// Swipe-up gesture to restore alphabet
-let touchStartY = 0;
-const results = document.getElementById('results');
-
-results.addEventListener('touchstart', function(e) {
-  touchStartY = e.touches[0].clientY;
-}, false);
-
-results.addEventListener('touchend', function(e) {
-  const touchEndY = e.changedTouches[0].clientY;
-  const diff = touchStartY - touchEndY;
-
-  if (diff > 50) { // swipe up
-    toggleAlphabet(false); // show alphabet
-  }
-}, false);
