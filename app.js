@@ -1,40 +1,44 @@
-// Array to hold road data
 let roads = [];
 
-// Fetch the CSV file
+// Fetch CSV
 fetch('roads.csv')
   .then(response => response.text())
   .then(data => {
     const lines = data.split('\n').slice(1); // skip header
     lines.forEach(line => {
-      if (!line.trim()) return; // skip empty lines
-      // Remove any hidden quotes
-      line = line.replace(/"/g, '');
+      if (!line.trim()) return;
+      line = line.replace(/"/g, ''); // remove quotes
       const [Road, FirstLetter, Walk, Zone, Notes] = line.split(',');
       if (Road) {
-        roads.push({ Road: Road.trim(), FirstLetter: FirstLetter ? FirstLetter.trim() : Road.trim().charAt(0).toUpperCase(), Walk: Walk ? Walk.trim() : '', Zone: Zone ? Zone.trim() : '', Notes: Notes ? Notes.trim() : '' });
+        let letter = FirstLetter ? FirstLetter.trim().charAt(0).toUpperCase() : Road.trim().charAt(0).toUpperCase();
+        if (!/^[A-Z]$/.test(letter)) return;
+        roads.push({
+          Road: Road.trim(),
+          FirstLetter: letter,
+          Walk: Walk ? Walk.trim() : '',
+          Zone: Zone ? Zone.trim() : '',
+          Notes: Notes ? Notes.trim() : ''
+        });
       }
     });
     createAlphabet();
   })
   .catch(err => console.error('Error loading CSV:', err));
 
-// Create alphabet buttons
+// Alphabet buttons
 function createAlphabet() {
   const alphabetDiv = document.getElementById('alphabet');
+  alphabetDiv.innerHTML = '';
 
-  // Get first letter of each road or use FirstLetter column
-  const letters = [...new Set(
-      roads.map(r => {
-        const firstChar = r.FirstLetter.trim().charAt(0).toUpperCase();
-        return /^[A-Z]$/.test(firstChar) ? firstChar : null; // only A-Z
-      }).filter(Boolean)
-    )].sort();
+  const letters = [...new Set(roads.map(r => r.FirstLetter))].sort();
 
   letters.forEach(letter => {
     const btn = document.createElement('button');
     btn.textContent = letter;
-    btn.onclick = () => showRoads(letter);
+    btn.onclick = () => {
+      showRoads(letter);
+      toggleAlphabet(true); // hide alphabet after selection
+    };
     alphabetDiv.appendChild(btn);
   });
 }
@@ -45,7 +49,7 @@ function showRoads(letter) {
   results.innerHTML = '';
 
   roads
-    .filter(r => r.FirstLetter.trim().charAt(0).toUpperCase() === letter)
+    .filter(r => r.FirstLetter === letter)
     .sort((a, b) => a.Road.localeCompare(b.Road))
     .forEach(r => {
       const li = document.createElement('li');
@@ -53,3 +57,30 @@ function showRoads(letter) {
       results.appendChild(li);
     });
 }
+
+// Toggle alphabet display
+function toggleAlphabet(forceHide = false) {
+  const alphabet = document.getElementById('alphabet');
+  if (forceHide) {
+    alphabet.style.display = 'none';
+  } else {
+    alphabet.style.display = (alphabet.style.display === 'none') ? 'flex' : 'flex';
+  }
+}
+
+// Swipe-up gesture to restore alphabet
+let touchStartY = 0;
+const results = document.getElementById('results');
+
+results.addEventListener('touchstart', function(e) {
+  touchStartY = e.touches[0].clientY;
+}, false);
+
+results.addEventListener('touchend', function(e) {
+  const touchEndY = e.changedTouches[0].clientY;
+  const diff = touchStartY - touchEndY;
+
+  if (diff > 50) { // swipe up
+    toggleAlphabet(false); // show alphabet
+  }
+}, false);
