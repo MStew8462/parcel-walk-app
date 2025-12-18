@@ -1,59 +1,103 @@
+const letterGrid = document.getElementById("letterGrid");
+const walkGrid = document.getElementById("walkGrid");
+const roadList = document.getElementById("roadList");
+
+const roadTab = document.getElementById("roadTab");
+const walkTab = document.getElementById("walkTab");
+
 let roads = [];
+let walksIndex = {};
 
-// Fetch CSV
-fetch('roads.csv')
-  .then(response => response.text())
-  .then(data => {
-    const lines = data.split('\n').slice(1); // skip header
-    lines.forEach(line => {
-      if (!line.trim()) return;
-      line = line.replace(/"/g, ''); // remove quotes
-      const [Road, FirstLetter, Walk, Zone, Notes] = line.split(',');
-      if (Road) {
-        let letter = FirstLetter ? FirstLetter.trim().charAt(0).toUpperCase() : Road.trim().charAt(0).toUpperCase();
-        if (!/^[A-Z]$/.test(letter)) return;
-        roads.push({
-          Road: Road.trim(),
-          FirstLetter: letter,
-          Walk: Walk ? Walk.trim() : '',
-          Zone: Zone ? Zone.trim() : '',
-          Notes: Notes ? Notes.trim() : ''
-        });
+fetch("roads.csv")
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split("\n").slice(1);
+
+    rows.forEach(row => {
+      const [road, letter, walk] = row.split(",");
+
+      const cleanRoad = road.trim();
+      const cleanLetter = letter.trim().toUpperCase();
+      const cleanWalk = walk.trim();
+
+      roads.push({ road: cleanRoad, letter: cleanLetter, walk: cleanWalk });
+
+      if (!walksIndex[cleanWalk]) {
+        walksIndex[cleanWalk] = [];
       }
+      walksIndex[cleanWalk].push(cleanRoad);
     });
-    createAlphabet();
-  })
-  .catch(err => console.error('Error loading CSV:', err));
 
-// Alphabet buttons
-function createAlphabet() {
-  const alphabetDiv = document.getElementById('alphabet');
-  alphabetDiv.innerHTML = '';
+    Object.values(walksIndex).forEach(list => list.sort());
+    buildLetterGrid();
+    buildWalkGrid();
+  });
 
-  const letters = [...new Set(roads.map(r => r.FirstLetter))].sort();
+function buildLetterGrid() {
+  const letters = [...new Set(roads.map(r => r.letter))].sort();
+  letterGrid.innerHTML = "";
 
   letters.forEach(letter => {
-    const btn = document.createElement('button');
+    const btn = document.createElement("button");
+    btn.className = "letter-btn";
     btn.textContent = letter;
-    btn.onclick = () => showRoads(letter);
-    alphabetDiv.appendChild(btn);
+    btn.onclick = () => showRoadsByLetter(letter);
+    letterGrid.appendChild(btn);
   });
 }
 
-// Show roads for selected letter
-function showRoads(letter) {
-  const results = document.getElementById('results');
-  results.innerHTML = '';
+function buildWalkGrid() {
+  walkGrid.innerHTML = "";
+
+  Object.keys(walksIndex)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .forEach(walk => {
+      const btn = document.createElement("button");
+      btn.className = "walk-btn";
+      btn.textContent = walk;
+      btn.onclick = () => showWalk(walk);
+      walkGrid.appendChild(btn);
+    });
+}
+
+function showRoadsByLetter(letter) {
+  roadList.innerHTML = "";
 
   roads
-    .filter(r => r.FirstLetter === letter)
-    .sort((a, b) => a.Road.localeCompare(b.Road))
+    .filter(r => r.letter === letter)
     .forEach(r => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span>${r.Road}</span><strong>${r.Walk}</strong>`;
-      results.appendChild(li);
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${r.road}</span><span class="walk">${r.walk}</span>`;
+      roadList.appendChild(li);
     });
-
-  // Shrink alphabet buttons after selection
-  document.getElementById('alphabet').classList.add('shrink');
 }
+
+function showWalk(walk) {
+  roadList.innerHTML = "";
+
+  walksIndex[walk].forEach(road => {
+    const li = document.createElement("li");
+    li.textContent = road;
+    roadList.appendChild(li);
+  });
+}
+
+/* TAB SWITCHING */
+
+roadTab.onclick = () => {
+  roadTab.classList.add("active");
+  walkTab.classList.remove("active");
+
+  letterGrid.classList.remove("hidden");
+  walkGrid.classList.add("hidden");
+  roadList.innerHTML = "";
+};
+
+walkTab.onclick = () => {
+  walkTab.classList.add("active");
+  roadTab.classList.remove("active");
+
+  letterGrid.classList.add("hidden");
+  walkGrid.classList.remove("hidden");
+  roadList.innerHTML = "";
+};
