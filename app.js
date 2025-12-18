@@ -29,8 +29,12 @@ fetch("roads.csv")
     });
 
     Object.values(walksIndex).forEach(list => list.sort());
+
     buildLetterGrid();
     buildWalkGrid();
+
+    // ✅ Explicit default state
+    showRoadMode();
   });
 
 function buildLetterGrid() {
@@ -82,22 +86,27 @@ function showWalk(walk) {
   });
 }
 
-/* TAB SWITCHING */
+/* ===== MODE SWITCHING ===== */
 
-roadTab.onclick = () => {
+function showRoadMode() {
   roadTab.classList.add("active");
   walkTab.classList.remove("active");
 
   letterGrid.classList.remove("hidden");
   walkGrid.classList.add("hidden");
-  roadList.innerHTML = "";
-};
 
-walkTab.onclick = () => {
+  roadList.innerHTML = "";
+}
+
+function showWalkMode() {
   walkTab.classList.add("active");
   roadTab.classList.remove("active");
 
-  letterGrid.classList.add("hidden");
   walkGrid.classList.remove("hidden");
+  letterGrid.classList.add("hidden");
+
   roadList.innerHTML = "";
-};
+}
+
+roadTab.onclick = showRoadMode;
+walkTab.onclick = showWalkMode;
