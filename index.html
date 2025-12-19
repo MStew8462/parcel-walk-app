@@ -1,24 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sorting Assistant</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* CSS STYLES */
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 10px; cursor: pointer; background: #eee; border: none; font-weight: bold; }
+    .tab.active { background: #007bff; color: white; }
+    .hidden { display: none; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px; }
+    .grid button { padding: 10px; font-size: 16px; cursor: pointer; }
+    .grid.compact { display: none; } /* Hide grid when showing results */
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #ddd; }
+    .footer { margin-top: 30px; font-size: 0.8em; color: #666; text-align: center; }
+  </style>
 </head>
 <body>
 
-  <!-- Mode Tabs -->
+  <h1>Sorting Assistant</h1>
+
   <div class="tabs">
     <button id="roadTab" class="tab active">Road Lookup</button>
     <button id="walkTab" class="tab">Walk Lookup</button>
   </div>
 
-  <!-- Selector Grid (letters OR numbers) -->
-  <div id="selectorGrid" class="grid"></div>
-
-  <!-- Results -->
+  <div id="letterGrid" class="grid"></div>
+  <div id="walkGrid" class="grid hidden"></div>
   <ul id="results"></ul>
 
-  <script src="app.js"></script>
+  <p class="footer">Internal sorting aid – not an official Royal Mail system</p>
+
+  <script>
+    // 1. GLOBAL VARIABLES
+    let roads = [];
+    
+    // We declare these but do NOT assign them yet
+    let letterGrid, walkGrid, results, roadTab, walkTab;
+
+    // 2. WAIT FOR HTML TO LOAD
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      // Now it is safe to grab the elements
+      letterGrid = document.getElementById("letterGrid");
+      walkGrid = document.getElementById("walkGrid");
+      results = document.getElementById("results");
+      roadTab = document.getElementById("roadTab");
+      walkTab = document.getElementById("walkTab");
+
+      // Set up clicks
+      roadTab.onclick = () => switchMode("road");
+      walkTab.onclick = () => switchMode("walk");
+
+      // Load Data
+      loadData();
+    });
+
+    // 3. DATA LOADING (With Crash Protection)
+    function loadData() {
+      fetch("roads.csv")
+        .then(res => res.text())
+        .then(text => {
+          const lines = text.trim().split("\n").slice(1);
+
+          roads = lines.map(line => {
+            if (!line || !line.includes(",")) return null;
+            const [road, walk] = line.split(",");
+            if (!road.trim()) return null;
+            return {
+              road: road.trim(),
+              walk: walk.trim(),
+              letter: road.trim()[0].toUpperCase()
+            };
+          }).filter(r => r !== null);
+
+          buildLetterGrid();
+          buildWalkGrid();
+          switchMode("road");
+        })
+        .catch(err => {
+          console.error(err);
+          // Show error on screen if fetch fails
+          results.innerHTML = `<li style="color:red">Error loading data: ${err.message}</li>`;
+        });
+    }
+
+    // 4. DISPLAY FUNCTIONS
+    function switchMode(mode) {
+      results.innerHTML = "";
+      letterGrid.classList.remove("compact");
+      walkGrid.classList.remove("compact");
+
+      if (mode === "road") {
+        roadTab.classList.add("active");
+        walkTab.classList.remove("active");
+        letterGrid.classList.remove("hidden");
+        walkGrid.classList.add("hidden");
+      } else {
+        walkTab.classList.add("active");
+        roadTab.classList.remove("active");
+        walkGrid.classList.remove("hidden");
+        letterGrid.classList.add("hidden");
+      }
+    }
+
+    function buildLetterGrid() {
+      letterGrid.innerHTML = ""; // This is where it was crashing before
+      const letters = [...new Set(roads.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
+      letters.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.textContent = letter;
+        btn.onclick = () => showRoadsByLetter(letter);
+        letterGrid.appendChild(btn);
+      });
+    }
+
+    function buildWalkGrid() {
+      walkGrid.innerHTML = "";
+      const walks = [...new Set(roads.map(r => r.walk))].sort((a, b) => parseInt(a) - parseInt(b));
+      walks.forEach(walk => {
+        const btn = document.createElement("button");
+        btn.textContent = walk;
+        btn.onclick = () => showRoadsByWalk(walk);
+        walkGrid.appendChild(btn);
+      });
+    }
+
+    function compactGrids() {
+      letterGrid.classList.add("compact");
+      walkGrid.classList.add("compact");
+    }
+
+    function showRoadsByLetter(letter) {
+      compactGrids();
+      results.innerHTML = "";
+      roads.filter(r => r.letter === letter)
+           .sort((a, b) => a.road.localeCompare(b.road))
+           .forEach(renderRow);
+    }
+
+    function showRoadsByWalk(walk) {
+      compactGrids();
+      results.innerHTML = "";
+      roads.filter(r => r.walk === walk)
+           .sort((a, b) => a.road.localeCompare(b.road))
+           .forEach(renderRow);
+    }
+
+    function renderRow(r) {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${r.road}</strong> <span>${r.walk}</span>`;
+      results.appendChild(li);
+    }
+  </script>
 </body>
 </html>
