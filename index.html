@@ -2,28 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sorting Assistant</title>
   <style>
-    /* --- CSS STYLES --- */
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background-color: #f4f4f9; }
-    h1 { text-align: center; color: #333; margin-bottom: 5px; }
+    /* --- MOBILE-FIRST STYLES --- */
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      padding: 10px; 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background-color: #f4f4f9; 
+      color: #333;
+    }
     
-    /* TABS */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 12px; cursor: pointer; background: #ddd; border: none; font-weight: bold; border-radius: 4px; }
+    h1 { text-align: center; color: #333; margin: 5px 0 15px 0; font-size: 1.2rem; }
+
+    /* TABS - BIGGER TEXT */
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .tab { 
+      flex: 1; 
+      padding: 12px 2px; 
+      cursor: pointer; 
+      background: #e0e0e0; 
+      border: none; 
+      font-weight: 800; /* Extra Bold */
+      font-size: 18px; /* Big font to fill button */
+      border-radius: 6px; 
+      color: #555;
+      line-height: 1.1;
+    }
     .tab.active { background: #007bff; color: white; }
 
-    /* GRIDS */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; margin-bottom: 20px; }
-    .grid button { padding: 10px; font-size: 14px; font-weight: bold; cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 4px; }
-    .grid button:hover { background: #007bff; color: white; }
+    /* GRIDS - DEFAULT STATE (BIG) */
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); 
+      gap: 10px; 
+      margin-bottom: 15px; 
+      transition: all 0.3s ease; /* Smooth shrink animation */
+    }
+    .grid button { 
+      padding: 12px; 
+      font-size: 18px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      background: white; 
+      border: 1px solid #ccc; 
+      border-radius: 6px; 
+      color: #333; 
+      touch-action: manipulation; /* Improves touch response */
+    }
+    .grid button:active { background: #007bff; color: white; }
     .grid button.selected { background: #0056b3; color: white; border-color: #0056b3; }
 
-    /* RESULTS */
-    ul { list-style: none; padding: 0; }
-    li { display: flex; justify-content: space-between; padding: 10px; background: white; border-bottom: 1px solid #eee; }
-    li strong { color: #007bff; }
+    /* COMPACT GRID MODE (SHRUNK) */
+    .grid.compact {
+      gap: 5px; /* Tighter gap */
+      grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); /* Smaller columns */
+      margin-bottom: 10px;
+    }
+    .grid.compact button {
+      padding: 6px; /* Smaller padding */
+      font-size: 14px; /* Smaller font */
+    }
+
+    /* RESULTS LIST - SMALLER & COMPACT */
+    ul { list-style: none; padding: 0; margin-top: 0; }
+    li { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 8px 10px; /* Tighter padding */
+      background: white; 
+      border-bottom: 1px solid #eee; 
+      font-size: 14px; /* Smaller list font */
+    }
+    
+    /* Road Name */
+    li span.name { 
+      font-weight: 500; 
+      color: #333; 
+    }
+    
+    /* Walk Number - BOLD */
+    li span.num { 
+      font-weight: 900; /* Extra Bold */
+      font-size: 1.2em; /* Slightly larger than text */
+      color: #000;
+    }
 
     /* UTILITY */
     .hidden { display: none !important; }
@@ -68,21 +134,17 @@
           const lines = text.trim().split("\n").slice(1); // Skip header
 
           roadsData = lines.map(line => {
-            // Safety Check for empty lines
             if (!line || !line.includes(",")) return null;
             
-            // SPLIT BY COMMA
+            // CSV STRUCTURE: Road(0), FirstLetter(1), Walk(2) ...
             const parts = line.split(",");
-            
-            // --- CRITICAL FIX IS HERE ---
-            // Your CSV is: Road(0), FirstLetter(1), Walk(2), Zone(3), Notes(4)
             const roadName = parts[0]; 
-            const walkNum = parts[2]; // We pick Index 2, not Index 1
+            const walkNum = parts[2]; // Index 2 is the Walk Number
 
             if (!roadName) return null;
 
             return {
-              road: roadName.trim().replace(/"/g, ''), // Remove quotes if present
+              road: roadName.trim().replace(/"/g, ''),
               walk: walkNum ? walkNum.trim() : "?",
               letter: roadName.trim().charAt(0).toUpperCase()
             };
@@ -97,9 +159,14 @@
           errorBox.innerHTML = `Error: ${err.message}`;
         });
 
-      // --- TABS ---
+      // --- TABS & MODES ---
       function switchMode(mode) {
         results.innerHTML = "";
+        
+        // RESET GRIDS TO FULL SIZE ON TAB SWITCH
+        letterGrid.classList.remove("compact");
+        walkGrid.classList.remove("compact");
+
         if (mode === "road") {
           roadTab.classList.add("active");
           walkTab.classList.remove("active");
@@ -125,8 +192,7 @@
           const btn = document.createElement("button");
           btn.textContent = letter;
           btn.onclick = (e) => {
-            document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
-            e.target.classList.add("selected");
+            handleSelection(e.target, letterGrid);
             showRoads(roadsData.filter(r => r.letter === letter));
           };
           letterGrid.appendChild(btn);
@@ -135,7 +201,6 @@
 
       function buildWalkGrid() {
         walkGrid.innerHTML = "";
-        // Numerical Sort
         const walks = [...new Set(roadsData.map(r => r.walk))]
           .sort((a, b) => parseInt(a) - parseInt(b));
 
@@ -143,20 +208,34 @@
           const btn = document.createElement("button");
           btn.textContent = walk;
           btn.onclick = (e) => {
-            document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
-            e.target.classList.add("selected");
+            handleSelection(e.target, walkGrid);
             showRoads(roadsData.filter(r => r.walk === walk));
           };
           walkGrid.appendChild(btn);
         });
       }
 
+      // Helper to highlight button and SHRINK grid
+      function handleSelection(btn, gridElement) {
+        // Remove selection from all
+        document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
+        // Select clicked
+        btn.classList.add("selected");
+        // Shrink the grid to make room for list
+        gridElement.classList.add("compact");
+      }
+
+      // --- DISPLAY LIST ---
       function showRoads(list) {
         results.innerHTML = "";
+        
+        // Sort alphabetically
         list.sort((a, b) => a.road.localeCompare(b.road));
+        
         list.forEach(r => {
           const li = document.createElement("li");
-          li.innerHTML = `<strong>${r.road}</strong> <span>Walk ${r.walk}</span>`;
+          // CLEAN FORMAT: Road on left, Bold Number on right (No "Walk" text)
+          li.innerHTML = `<span class="name">${r.road}</span> <span class="num">${r.walk}</span>`;
           results.appendChild(li);
         });
       }
