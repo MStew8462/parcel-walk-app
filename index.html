@@ -5,156 +5,212 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sorting Assistant</title>
   <style>
-    /* CSS STYLES */
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+    /* --- CSS STYLES --- */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background-color: #f4f4f9; color: #333; }
+    
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+    p.subtitle { text-align: center; color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
+
+    /* TABS */
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 10px; cursor: pointer; background: #eee; border: none; font-weight: bold; }
+    .tab { flex: 1; padding: 12px; cursor: pointer; background: #e0e0e0; border: none; font-weight: bold; border-radius: 8px; transition: background 0.2s; color: #555; }
+    .tab:hover { background: #d0d0d0; }
     .tab.active { background: #007bff; color: white; }
-    .hidden { display: none; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px; }
-    .grid button { padding: 10px; font-size: 16px; cursor: pointer; }
-    .grid.compact { display: none; } /* Hide grid when showing results */
-    ul { list-style: none; padding: 0; }
-    li { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #ddd; }
-    .footer { margin-top: 30px; font-size: 0.8em; color: #666; text-align: center; }
+
+    /* GRIDS */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; margin-bottom: 20px; }
+    .grid button { padding: 10px; font-size: 16px; font-weight: bold; cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 6px; color: #333; transition: all 0.2s; }
+    .grid button:hover { background: #007bff; color: white; border-color: #007bff; transform: translateY(-1px); }
+    .grid button.selected { background: #0056b3; color: white; border-color: #0056b3; }
+
+    /* RESULTS LIST */
+    ul { list-style: none; padding: 0; margin-top: 10px; }
+    li { display: flex; justify-content: space-between; padding: 12px; background: white; border-bottom: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    li strong { color: #007bff; font-size: 1.1em; }
+    li span { font-weight: bold; color: #555; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
+
+    .footer { margin-top: 40px; font-size: 0.8em; color: #aaa; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    .error-msg { color: white; background: #dc3545; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; }
+
+    /* UTILITY - This !important fixes the "Both Visible" bug */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <h1>Sorting Assistant</h1>
+  <p class="subtitle">Quick Reference Tool</p>
 
   <div class="tabs">
     <button id="roadTab" class="tab active">Road Lookup</button>
     <button id="walkTab" class="tab">Walk Lookup</button>
   </div>
 
+  <div id="errorContainer"></div>
+
   <div id="letterGrid" class="grid"></div>
+
   <div id="walkGrid" class="grid hidden"></div>
+  
+  <h3 id="resultsHeader" class="hidden" style="margin-left:5px; color:#555;">Results:</h3>
   <ul id="results"></ul>
 
   <p class="footer">Internal sorting aid – not an official Royal Mail system</p>
 
   <script>
-    // 1. GLOBAL VARIABLES
-    let roads = [];
-    
-    // We declare these but do NOT assign them yet
-    let letterGrid, walkGrid, results, roadTab, walkTab;
-
-    // 2. WAIT FOR HTML TO LOAD
     document.addEventListener("DOMContentLoaded", () => {
       
-      // Now it is safe to grab the elements
-      letterGrid = document.getElementById("letterGrid");
-      walkGrid = document.getElementById("walkGrid");
-      results = document.getElementById("results");
-      roadTab = document.getElementById("roadTab");
-      walkTab = document.getElementById("walkTab");
+      // --- 1. GET ELEMENTS ---
+      const letterGrid = document.getElementById("letterGrid");
+      const walkGrid = document.getElementById("walkGrid");
+      const results = document.getElementById("results");
+      const resultsHeader = document.getElementById("resultsHeader");
+      const roadTab = document.getElementById("roadTab");
+      const walkTab = document.getElementById("walkTab");
+      const errorContainer = document.getElementById("errorContainer");
 
-      // Set up clicks
+      let roadsData = [];
+
+      // --- 2. SWITCHING MODES ---
+      function switchMode(mode) {
+        // Clear previous results
+        results.innerHTML = "";
+        resultsHeader.classList.add("hidden");
+
+        // Reset Button Highlights
+        document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
+
+        if (mode === "road") {
+          // Update Tabs
+          roadTab.classList.add("active");
+          walkTab.classList.remove("active");
+          
+          // Toggle Grids
+          letterGrid.classList.remove("hidden");
+          walkGrid.classList.add("hidden");
+        } else {
+          // Update Tabs
+          walkTab.classList.add("active");
+          roadTab.classList.remove("active");
+          
+          // Toggle Grids
+          walkGrid.classList.remove("hidden");
+          letterGrid.classList.add("hidden");
+        }
+      }
+
+      // Tab Click Listeners
       roadTab.onclick = () => switchMode("road");
       walkTab.onclick = () => switchMode("walk");
 
-      // Load Data
-      loadData();
-    });
-
-    // 3. DATA LOADING (With Crash Protection)
-    function loadData() {
+      // --- 3. LOAD DATA ---
       fetch("roads.csv")
-        .then(res => res.text())
+        .then(res => {
+          if (!res.ok) throw new Error("File not found (404)");
+          return res.text();
+        })
         .then(text => {
-          const lines = text.trim().split("\n").slice(1);
+          const lines = text.trim().split("\n").slice(1); // Remove header
 
-          roads = lines.map(line => {
+          roadsData = lines.map(line => {
             if (!line || !line.includes(",")) return null;
             const [road, walk] = line.split(",");
-            if (!road.trim()) return null;
+            if (!road || !road.trim()) return null;
+
             return {
               road: road.trim(),
-              walk: walk.trim(),
+              walk: walk ? walk.trim() : "?",
               letter: road.trim()[0].toUpperCase()
             };
           }).filter(r => r !== null);
 
+          // Build the Interface
           buildLetterGrid();
           buildWalkGrid();
-          switchMode("road");
+          
+          // Ensure correct start state
+          switchMode("road"); 
         })
         .catch(err => {
-          console.error(err);
-          // Show error on screen if fetch fails
-          results.innerHTML = `<li style="color:red">Error loading data: ${err.message}</li>`;
+          errorContainer.innerHTML = `<div class="error-msg">Error: ${err.message}<br>Check that 'roads.csv' is in the folder.</div>`;
         });
-    }
 
-    // 4. DISPLAY FUNCTIONS
-    function switchMode(mode) {
-      results.innerHTML = "";
-      letterGrid.classList.remove("compact");
-      walkGrid.classList.remove("compact");
+      // --- 4. BUILDERS ---
+      
+      function buildLetterGrid() {
+        letterGrid.innerHTML = "";
+        // Get unique letters A-Z
+        const letters = [...new Set(roadsData.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
 
-      if (mode === "road") {
-        roadTab.classList.add("active");
-        walkTab.classList.remove("active");
-        letterGrid.classList.remove("hidden");
-        walkGrid.classList.add("hidden");
-      } else {
-        walkTab.classList.add("active");
-        roadTab.classList.remove("active");
-        walkGrid.classList.remove("hidden");
-        letterGrid.classList.add("hidden");
+        letters.forEach(letter => {
+          const btn = document.createElement("button");
+          btn.textContent = letter;
+          btn.onclick = (e) => {
+            // Highlight this button, unselect others
+            document.querySelectorAll("#letterGrid button").forEach(b => b.classList.remove("selected"));
+            e.target.classList.add("selected");
+            
+            showRoadsByLetter(letter);
+          };
+          letterGrid.appendChild(btn);
+        });
       }
-    }
 
-    function buildLetterGrid() {
-      letterGrid.innerHTML = ""; // This is where it was crashing before
-      const letters = [...new Set(roads.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
-      letters.forEach(letter => {
-        const btn = document.createElement("button");
-        btn.textContent = letter;
-        btn.onclick = () => showRoadsByLetter(letter);
-        letterGrid.appendChild(btn);
-      });
-    }
+      function buildWalkGrid() {
+        walkGrid.innerHTML = "";
+        // Get unique walks, sorted numerically
+        const walks = [...new Set(roadsData.map(r => r.walk))]
+          .sort((a, b) => parseInt(a) - parseInt(b));
 
-    function buildWalkGrid() {
-      walkGrid.innerHTML = "";
-      const walks = [...new Set(roads.map(r => r.walk))].sort((a, b) => parseInt(a) - parseInt(b));
-      walks.forEach(walk => {
-        const btn = document.createElement("button");
-        btn.textContent = walk;
-        btn.onclick = () => showRoadsByWalk(walk);
-        walkGrid.appendChild(btn);
-      });
-    }
+        walks.forEach(walk => {
+          const btn = document.createElement("button");
+          btn.textContent = walk;
+          btn.onclick = (e) => {
+            // Highlight this button, unselect others
+            document.querySelectorAll("#walkGrid button").forEach(b => b.classList.remove("selected"));
+            e.target.classList.add("selected");
 
-    function compactGrids() {
-      letterGrid.classList.add("compact");
-      walkGrid.classList.add("compact");
-    }
+            showRoadsByWalk(walk);
+          };
+          walkGrid.appendChild(btn);
+        });
+      }
 
-    function showRoadsByLetter(letter) {
-      compactGrids();
-      results.innerHTML = "";
-      roads.filter(r => r.letter === letter)
-           .sort((a, b) => a.road.localeCompare(b.road))
-           .forEach(renderRow);
-    }
+      // --- 5. DISPLAY RESULTS ---
 
-    function showRoadsByWalk(walk) {
-      compactGrids();
-      results.innerHTML = "";
-      roads.filter(r => r.walk === walk)
-           .sort((a, b) => a.road.localeCompare(b.road))
-           .forEach(renderRow);
-    }
+      function showRoadsByLetter(letter) {
+        results.innerHTML = "";
+        resultsHeader.classList.remove("hidden");
+        resultsHeader.textContent = `Roads starting with '${letter}'`;
 
-    function renderRow(r) {
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${r.road}</strong> <span>${r.walk}</span>`;
-      results.appendChild(li);
-    }
+        const filtered = roadsData
+          .filter(r => r.letter === letter)
+          .sort((a, b) => a.road.localeCompare(b.road));
+
+        filtered.forEach(r => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${r.road}</strong> <span>Walk ${r.walk}</span>`;
+          results.appendChild(li);
+        });
+      }
+
+      function showRoadsByWalk(walk) {
+        results.innerHTML = "";
+        resultsHeader.classList.remove("hidden");
+        resultsHeader.textContent = `Roads on Walk ${walk}`;
+
+        const filtered = roadsData
+          .filter(r => r.walk === walk)
+          .sort((a, b) => a.road.localeCompare(b.road));
+
+        filtered.forEach(r => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${r.road}</strong> <span>Walk ${r.walk}</span>`;
+          results.appendChild(li);
+        });
+      }
+
+    });
   </script>
 </body>
 </html>
