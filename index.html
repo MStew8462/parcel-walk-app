@@ -6,151 +6,128 @@
   <title>Sorting Assistant</title>
   <style>
     /* --- CSS STYLES --- */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background-color: #f4f4f9; color: #333; }
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background-color: #f4f4f9; }
+    h1 { text-align: center; color: #333; margin-bottom: 5px; }
     
-    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
-    p.subtitle { text-align: center; color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
-
     /* TABS */
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 12px; cursor: pointer; background: #e0e0e0; border: none; font-weight: bold; border-radius: 8px; transition: background 0.2s; color: #555; }
-    .tab:hover { background: #d0d0d0; }
+    .tab { flex: 1; padding: 12px; cursor: pointer; background: #ddd; border: none; font-weight: bold; border-radius: 4px; }
     .tab.active { background: #007bff; color: white; }
 
     /* GRIDS */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; margin-bottom: 20px; }
-    .grid button { padding: 10px; font-size: 16px; font-weight: bold; cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 6px; color: #333; transition: all 0.2s; }
-    .grid button:hover { background: #007bff; color: white; border-color: #007bff; transform: translateY(-1px); }
+    .grid button { padding: 10px; font-size: 14px; font-weight: bold; cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 4px; }
+    .grid button:hover { background: #007bff; color: white; }
     .grid button.selected { background: #0056b3; color: white; border-color: #0056b3; }
 
-    /* RESULTS LIST */
-    ul { list-style: none; padding: 0; margin-top: 10px; }
-    li { display: flex; justify-content: space-between; padding: 12px; background: white; border-bottom: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    li strong { color: #007bff; font-size: 1.1em; }
-    li span { font-weight: bold; color: #555; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
+    /* RESULTS */
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; padding: 10px; background: white; border-bottom: 1px solid #eee; }
+    li strong { color: #007bff; }
 
-    .footer { margin-top: 40px; font-size: 0.8em; color: #aaa; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
-    .error-msg { color: white; background: #dc3545; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold; }
-
-    /* UTILITY - This !important fixes the "Both Visible" bug */
+    /* UTILITY */
     .hidden { display: none !important; }
+    #errorBox { background: #ffdddd; color: #a00; padding: 10px; margin-bottom: 20px; display: none; border-radius: 5px; text-align: center;}
   </style>
 </head>
 <body>
 
   <h1>Sorting Assistant</h1>
-  <p class="subtitle">Quick Reference Tool</p>
 
   <div class="tabs">
     <button id="roadTab" class="tab active">Road Lookup</button>
     <button id="walkTab" class="tab">Walk Lookup</button>
   </div>
 
-  <div id="errorContainer"></div>
+  <div id="errorBox"></div>
 
   <div id="letterGrid" class="grid"></div>
-
   <div id="walkGrid" class="grid hidden"></div>
-  
-  <h3 id="resultsHeader" class="hidden" style="margin-left:5px; color:#555;">Results:</h3>
-  <ul id="results"></ul>
 
-  <p class="footer">Internal sorting aid – not an official Royal Mail system</p>
+  <ul id="results"></ul>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       
-      // --- 1. GET ELEMENTS ---
       const letterGrid = document.getElementById("letterGrid");
       const walkGrid = document.getElementById("walkGrid");
       const results = document.getElementById("results");
-      const resultsHeader = document.getElementById("resultsHeader");
       const roadTab = document.getElementById("roadTab");
       const walkTab = document.getElementById("walkTab");
-      const errorContainer = document.getElementById("errorContainer");
+      const errorBox = document.getElementById("errorBox");
 
       let roadsData = [];
 
-      // --- 2. SWITCHING MODES ---
+      // --- LOAD DATA ---
+      fetch("roads.csv")
+        .then(res => {
+          if (!res.ok) throw new Error("Could not find roads.csv");
+          return res.text();
+        })
+        .then(text => {
+          const lines = text.trim().split("\n").slice(1); // Skip header
+
+          roadsData = lines.map(line => {
+            // Safety Check for empty lines
+            if (!line || !line.includes(",")) return null;
+            
+            // SPLIT BY COMMA
+            const parts = line.split(",");
+            
+            // --- CRITICAL FIX IS HERE ---
+            // Your CSV is: Road(0), FirstLetter(1), Walk(2), Zone(3), Notes(4)
+            const roadName = parts[0]; 
+            const walkNum = parts[2]; // We pick Index 2, not Index 1
+
+            if (!roadName) return null;
+
+            return {
+              road: roadName.trim().replace(/"/g, ''), // Remove quotes if present
+              walk: walkNum ? walkNum.trim() : "?",
+              letter: roadName.trim().charAt(0).toUpperCase()
+            };
+          }).filter(r => r !== null);
+
+          buildLetterGrid();
+          buildWalkGrid();
+          switchMode("road");
+        })
+        .catch(err => {
+          errorBox.style.display = "block";
+          errorBox.innerHTML = `Error: ${err.message}`;
+        });
+
+      // --- TABS ---
       function switchMode(mode) {
-        // Clear previous results
         results.innerHTML = "";
-        resultsHeader.classList.add("hidden");
-
-        // Reset Button Highlights
-        document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
-
         if (mode === "road") {
-          // Update Tabs
           roadTab.classList.add("active");
           walkTab.classList.remove("active");
-          
-          // Toggle Grids
           letterGrid.classList.remove("hidden");
           walkGrid.classList.add("hidden");
         } else {
-          // Update Tabs
           walkTab.classList.add("active");
           roadTab.classList.remove("active");
-          
-          // Toggle Grids
           walkGrid.classList.remove("hidden");
           letterGrid.classList.add("hidden");
         }
       }
 
-      // Tab Click Listeners
       roadTab.onclick = () => switchMode("road");
       walkTab.onclick = () => switchMode("walk");
 
-      // --- 3. LOAD DATA ---
-      fetch("roads.csv")
-        .then(res => {
-          if (!res.ok) throw new Error("File not found (404)");
-          return res.text();
-        })
-        .then(text => {
-          const lines = text.trim().split("\n").slice(1); // Remove header
-
-          roadsData = lines.map(line => {
-            if (!line || !line.includes(",")) return null;
-            const [road, walk] = line.split(",");
-            if (!road || !road.trim()) return null;
-
-            return {
-              road: road.trim(),
-              walk: walk ? walk.trim() : "?",
-              letter: road.trim()[0].toUpperCase()
-            };
-          }).filter(r => r !== null);
-
-          // Build the Interface
-          buildLetterGrid();
-          buildWalkGrid();
-          
-          // Ensure correct start state
-          switchMode("road"); 
-        })
-        .catch(err => {
-          errorContainer.innerHTML = `<div class="error-msg">Error: ${err.message}<br>Check that 'roads.csv' is in the folder.</div>`;
-        });
-
-      // --- 4. BUILDERS ---
-      
+      // --- BUILDERS ---
       function buildLetterGrid() {
         letterGrid.innerHTML = "";
-        // Get unique letters A-Z
         const letters = [...new Set(roadsData.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
-
+        
         letters.forEach(letter => {
           const btn = document.createElement("button");
           btn.textContent = letter;
           btn.onclick = (e) => {
-            // Highlight this button, unselect others
-            document.querySelectorAll("#letterGrid button").forEach(b => b.classList.remove("selected"));
+            document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
             e.target.classList.add("selected");
-            
-            showRoadsByLetter(letter);
+            showRoads(roadsData.filter(r => r.letter === letter));
           };
           letterGrid.appendChild(btn);
         });
@@ -158,7 +135,7 @@
 
       function buildWalkGrid() {
         walkGrid.innerHTML = "";
-        // Get unique walks, sorted numerically
+        // Numerical Sort
         const walks = [...new Set(roadsData.map(r => r.walk))]
           .sort((a, b) => parseInt(a) - parseInt(b));
 
@@ -166,44 +143,18 @@
           const btn = document.createElement("button");
           btn.textContent = walk;
           btn.onclick = (e) => {
-            // Highlight this button, unselect others
-            document.querySelectorAll("#walkGrid button").forEach(b => b.classList.remove("selected"));
+            document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
             e.target.classList.add("selected");
-
-            showRoadsByWalk(walk);
+            showRoads(roadsData.filter(r => r.walk === walk));
           };
           walkGrid.appendChild(btn);
         });
       }
 
-      // --- 5. DISPLAY RESULTS ---
-
-      function showRoadsByLetter(letter) {
+      function showRoads(list) {
         results.innerHTML = "";
-        resultsHeader.classList.remove("hidden");
-        resultsHeader.textContent = `Roads starting with '${letter}'`;
-
-        const filtered = roadsData
-          .filter(r => r.letter === letter)
-          .sort((a, b) => a.road.localeCompare(b.road));
-
-        filtered.forEach(r => {
-          const li = document.createElement("li");
-          li.innerHTML = `<strong>${r.road}</strong> <span>Walk ${r.walk}</span>`;
-          results.appendChild(li);
-        });
-      }
-
-      function showRoadsByWalk(walk) {
-        results.innerHTML = "";
-        resultsHeader.classList.remove("hidden");
-        resultsHeader.textContent = `Roads on Walk ${walk}`;
-
-        const filtered = roadsData
-          .filter(r => r.walk === walk)
-          .sort((a, b) => a.road.localeCompare(b.road));
-
-        filtered.forEach(r => {
+        list.sort((a, b) => a.road.localeCompare(b.road));
+        list.forEach(r => {
           const li = document.createElement("li");
           li.innerHTML = `<strong>${r.road}</strong> <span>Walk ${r.walk}</span>`;
           results.appendChild(li);
