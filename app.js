@@ -25,6 +25,7 @@ fetch("roads.csv")
 
     buildLetterGrid();
     buildWalkGrid();
+    switchMode("road"); // FORCE INITIAL VISIBILITY
   });
 
 /* ---------- TAB SWITCHING ---------- */
@@ -35,7 +36,6 @@ walkTab.onclick = () => switchMode("walk");
 function switchMode(mode) {
   results.innerHTML = "";
 
-  // reset grid size when switching modes
   letterGrid.classList.remove("compact");
   walkGrid.classList.remove("compact");
 
@@ -90,7 +90,7 @@ function compactGrids() {
   walkGrid.classList.add("compact");
 }
 
-/* ---------- DISPLAY FUNCTIONS ---------- */
+/* ---------- DISPLAY ---------- */
 
 function showRoadsByLetter(letter) {
   compactGrids();
@@ -101,10 +101,7 @@ function showRoadsByLetter(letter) {
     .sort((a, b) => a.road.localeCompare(b.road))
     .forEach(r => {
       const li = document.createElement("li");
-      li.innerHTML = `
-        <span class="road">${r.road}</span>
-        <span class="walk">${r.walk}</span>
-      `;
+      li.innerHTML = `<span class="road">${r.road}</span><span class="walk">${r.walk}</span>`;
       results.appendChild(li);
     });
 }
@@ -118,10 +115,7 @@ function showRoadsByWalk(walk) {
     .sort((a, b) => a.road.localeCompare(b.road))
     .forEach(r => {
       const li = document.createElement("li");
-      li.innerHTML = `
-        <span class="road">${r.road}</span>
-        <span class="walk">${r.walk}</span>
-      `;
+      li.innerHTML = `<span class="road">${r.road}</span><span class="walk">${r.walk}</span>`;
       results.appendChild(li);
     });
 }

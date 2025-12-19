@@ -8,31 +8,30 @@ body {
 }
 
 .title {
-  margin-bottom: 4px;
-  font-size: 24px;
+  font-size: 26px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
-  margin-top: 0;
-  margin-bottom: 14px;
-  font-size: 15px;
+  font-size: 16px;
+  margin-bottom: 16px;
 }
 
-/* ---------- TABS (BIG & CLEAR) ---------- */
+/* ---------- HUGE MODE TABS ---------- */
 
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .tab {
-  padding: 16px 0;
-  font-size: 18px;
+  padding: 26px 0;              /* BIG */
+  font-size: 22px;              /* BIG TEXT */
   font-weight: bold;
+  border-radius: 12px;
   border: none;
-  border-radius: 8px;
   background: #ddd;
   cursor: pointer;
 }
@@ -41,36 +40,36 @@ body {
   background: #bbb;
 }
 
-/* ---------- LETTER / WALK GRID (DEFAULT LARGE) ---------- */
+/* ---------- LETTER / WALK GRID (FORCED VISIBILITY) ---------- */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(4, 1fr);  /* ALWAYS visible on mobile */
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .grid button {
-  padding: 16px 0;
-  font-size: 20px;
+  padding: 26px 0;              /* BIG BUTTONS */
+  font-size: 24px;
   font-weight: bold;
-  border-radius: 10px;
-  border: 1px solid #bbb;
+  border-radius: 14px;
+  border: 2px solid #aaa;
   background: white;
   cursor: pointer;
 }
 
-/* ---------- COMPACT MODE (WHEN RESULTS SHOW) ---------- */
+/* ---------- COMPACT MODE (AFTER SELECTION) ---------- */
 
 .grid.compact {
-  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
 }
 
 .grid.compact button {
-  padding: 10px 0;
-  font-size: 15px;
-  border-radius: 6px;
+  padding: 14px 0;
+  font-size: 16px;
+  border-radius: 8px;
 }
 
 /* ---------- RESULTS LIST ---------- */
@@ -79,20 +78,19 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 #results li {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-bottom: 1px solid #ddd;
   background: white;
 }
 
 #results li:nth-child(even) {
-  background: #f7f7f7;
+  background: #f6f6f6;
 }
 
 .road {
@@ -100,7 +98,7 @@ body {
 }
 
 .walk {
-  min-width: 70px;
+  min-width: 80px;
   text-align: right;
   font-weight: bold;
 }
@@ -112,7 +110,7 @@ body {
 }
 
 .footer {
-  font-size: 11px;
+  font-size: 12px;
   color: #777;
-  margin-top: 12px;
+  margin-top: 14px;
 }
