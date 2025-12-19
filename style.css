@@ -1,31 +1,52 @@
 body {
   font-family: Arial, sans-serif;
   margin: 10px;
+  background: #F4F4F4;
+  color: #333;
 }
+
+.title {
+  margin-bottom: 4px;
+  color: #333;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #555;
+  font-size: 14px;
+}
+
+/* ---------- TABS ---------- */
 
 .tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .tab {
-  padding: 8px 14px;
+  padding: 12px 20px;       /* ← bigger tap area */
   border: none;
-  background: #ddd;
+  background: #e0e0e0;
   cursor: pointer;
   font-weight: bold;
+  font-size: 16px;          /* ← readable at a glance */
+  border-radius: 6px;
 }
 
 .tab.active {
-  background: #007bff;
-  color: white;
+  background: #ccc;         /* neutral for now */
+  color: #000;
 }
+
+/* ---------- BUTTON GRIDS ---------- */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 8px;
   margin-bottom: 12px;
 }
 
@@ -33,20 +54,54 @@ body {
   padding: 10px;
   font-size: 16px;
   cursor: pointer;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
+
+.grid button:hover {
+  background: #ddd;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ---------- RESULTS LIST ---------- */
 
 #results {
   list-style: none;
   padding: 0;
+  margin: 0;
+  font-size: 14px;
 }
 
 #results li {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  padding: 6px 12px;
+  border-bottom: 1px solid #ddd;
+  background: white;
+}
+
+#results li:nth-child(even) {
+  background: #f7f7f7;
+}
+
+.road {
+  flex: 1;
 }
 
 .walk {
+  min-width: 60px;          /* ← comfortable spacing */
+  text-align: right;
   font-weight: bold;
+}
+
+/* ---------- FOOTER ---------- */
+
+.footer {
+  font-size: 11px;
+  color: #777;
+  margin-top: 12px;
 }
