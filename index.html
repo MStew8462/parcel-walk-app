@@ -5,17 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sorting Assistant</title>
   <style>
-    /* --- MOBILE-FIRST STYLES --- */
+    /* --- ROYAL MAIL THEME --- */
+    :root {
+      --rm-red: #D40511;
+      --rm-dark: #222;
+      --rm-grey: #f2f2f2;
+      --rm-hover: #b0040e;
+    }
+
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      padding: 10px; 
-      max-width: 600px; 
-      margin: 0 auto; 
-      background-color: #f4f4f9; 
+      padding: 0; 
+      margin: 0; 
+      background-color: #fff; 
       color: #333;
     }
     
-    h1 { text-align: center; color: #333; margin: 5px 0 15px 0; font-size: 1.2rem; }
+    /* APP HEADER */
+    header {
+      background-color: var(--rm-red);
+      color: white;
+      padding: 15px 10px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin-bottom: 15px;
+    }
+
+    h1 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+
+    /* CONTAINER */
+    .container { padding: 0 10px 10px 10px; max-width: 600px; margin: 0 auto; }
 
     /* TABS */
     .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
@@ -23,42 +42,43 @@
       flex: 1; 
       padding: 12px 2px; 
       cursor: pointer; 
-      background: #e0e0e0; 
+      background: #e6e6e6; 
       border: none; 
       font-weight: 800; 
-      font-size: 18px; 
-      border-radius: 6px; 
-      color: #555;
+      font-size: 16px; 
+      border-radius: 4px; 
+      color: #444;
       line-height: 1.1;
+      transition: background 0.2s;
     }
-    .tab.active { background: #007bff; color: white; }
+    .tab.active { background: var(--rm-dark); color: white; } /* Dark active tab looks sharp against red header */
 
-    /* GRID STYLES */
+    /* GRIDS */
     .grid { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); 
-      gap: 10px; 
+      gap: 8px; 
       margin-bottom: 15px; 
       transition: all 0.3s ease; 
     }
     .grid button { 
       padding: 12px; 
       font-size: 18px; 
-      font-weight: bold; 
+      font-weight: 700; 
       cursor: pointer; 
       background: white; 
       border: 1px solid #ccc; 
-      border-radius: 6px; 
-      color: #333; 
+      border-radius: 4px; 
+      color: var(--rm-dark); 
       touch-action: manipulation;
     }
-    .grid button:active { background: #007bff; color: white; }
-    .grid button.selected { background: #0056b3; color: white; border-color: #0056b3; }
+    .grid button:active { background: var(--rm-red); color: white; border-color: var(--rm-red); }
+    .grid button.selected { background: var(--rm-red); color: white; border-color: var(--rm-red); }
 
-    /* COMPACT GRID MODE (SHRUNK) */
+    /* COMPACT GRID MODE */
     .grid.compact {
-      gap: 5px; 
-      grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); 
+      gap: 4px; 
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr)); 
       margin-bottom: 10px;
     }
     .grid.compact button {
@@ -67,35 +87,31 @@
     }
 
     /* RESULTS LIST - ULTRA COMPACT & STRIPED */
-    ul { list-style: none; padding: 0; margin-top: 0; border-top: 1px solid #ddd; }
+    ul { list-style: none; padding: 0; margin-top: 0; border-top: 2px solid var(--rm-red); }
     
     li { 
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 6px 8px; /* Very tight padding */
+      padding: 5px 8px; /* ULTRA TIGHT PADDING */
       background: white; 
       border-bottom: 1px solid #eee; 
-      font-size: 13px; /* Smaller font for maximum density */
+      font-size: 12px; /* SMALLER FONT */
+      line-height: 1.3;
     }
 
-    /* ZEBRA STRIPING - Alternating Colors */
-    li:nth-child(even) {
-      background-color: #f1f2f6; /* Light grey for even rows */
-    }
+    /* ZEBRA STRIPING */
+    li:nth-child(even) { background-color: #f7f7f7; }
     
     /* Road Name */
-    li span.name { 
-      font-weight: 500; 
-      color: #333; 
-    }
+    li span.name { font-weight: 600; color: #222; }
     
-    /* Walk Number - BOLD */
+    /* Walk Number */
     li span.num { 
       font-weight: 900; 
-      font-size: 1.2em; 
-      color: #000;
-      min-width: 30px; /* Aligns numbers neatly */
+      font-size: 1.1em; 
+      color: var(--rm-red); /* Royal Mail Red Numbers */
+      min-width: 30px; 
       text-align: right;
     }
 
@@ -106,19 +122,23 @@
 </head>
 <body>
 
-  <h1>Sorting Assistant</h1>
+  <header>
+    <h1>Sorting Assistant</h1>
+  </header>
 
-  <div class="tabs">
-    <button id="roadTab" class="tab active">Road Lookup</button>
-    <button id="walkTab" class="tab">Walk Lookup</button>
+  <div class="container">
+    <div class="tabs">
+      <button id="roadTab" class="tab active">Road Lookup</button>
+      <button id="walkTab" class="tab">Walk Lookup</button>
+    </div>
+
+    <div id="errorBox"></div>
+
+    <div id="letterGrid" class="grid"></div>
+    <div id="walkGrid" class="grid hidden"></div>
+
+    <ul id="results"></ul>
   </div>
-
-  <div id="errorBox"></div>
-
-  <div id="letterGrid" class="grid"></div>
-  <div id="walkGrid" class="grid hidden"></div>
-
-  <ul id="results"></ul>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -170,7 +190,6 @@
       function switchMode(mode) {
         results.innerHTML = "";
         
-        // RESET GRIDS TO FULL SIZE ON TAB SWITCH
         letterGrid.classList.remove("compact");
         walkGrid.classList.remove("compact");
 
@@ -200,7 +219,8 @@
           btn.textContent = letter;
           btn.onclick = (e) => {
             handleSelection(e.target, letterGrid);
-            showRoads(roadsData.filter(r => r.letter === letter));
+            // TRUE = Show Walk Number
+            showRoads(roadsData.filter(r => r.letter === letter), true);
           };
           letterGrid.appendChild(btn);
         });
@@ -216,7 +236,8 @@
           btn.textContent = walk;
           btn.onclick = (e) => {
             handleSelection(e.target, walkGrid);
-            showRoads(roadsData.filter(r => r.walk === walk));
+            // FALSE = Hide Walk Number
+            showRoads(roadsData.filter(r => r.walk === walk), false);
           };
           walkGrid.appendChild(btn);
         });
@@ -229,13 +250,22 @@
       }
 
       // --- DISPLAY LIST ---
-      function showRoads(list) {
+      // Added 'showNumbers' parameter
+      function showRoads(list, showNumbers) {
         results.innerHTML = "";
         list.sort((a, b) => a.road.localeCompare(b.road));
         
         list.forEach(r => {
           const li = document.createElement("li");
-          li.innerHTML = `<span class="name">${r.road}</span> <span class="num">${r.walk}</span>`;
+          
+          if (showNumbers) {
+            // SHOW NUMBER (Road Lookup Mode)
+            li.innerHTML = `<span class="name">${r.road}</span> <span class="num">${r.walk}</span>`;
+          } else {
+            // HIDE NUMBER (Walk Lookup Mode)
+            li.innerHTML = `<span class="name">${r.road}</span>`;
+          }
+          
           results.appendChild(li);
         });
       }
