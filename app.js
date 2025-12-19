@@ -1,14 +1,27 @@
 let roads = [];
+let letterGrid, walkGrid, results, roadTab, walkTab;
 
-const letterGrid = document.getElementById("letterGrid");
-const walkGrid = document.getElementById("walkGrid");
-const results = document.getElementById("results");
+// Wait for the HTML to fully load before grabbing elements
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // 1. Grab the elements NOW (they are guaranteed to exist)
+  letterGrid = document.getElementById("letterGrid");
+  walkGrid = document.getElementById("walkGrid");
+  results = document.getElementById("results");
+  roadTab = document.getElementById("roadTab");
+  walkTab = document.getElementById("walkTab");
 
-const roadTab = document.getElementById("roadTab");
-const walkTab = document.getElementById("walkTab");
+  // 2. Set up click listeners
+  roadTab.onclick = () => switchMode("road");
+  walkTab.onclick = () => switchMode("walk");
+
+  // 3. Load the Data
+  loadData();
+});
 
 /* ---------- LOAD CSV ---------- */
 
+function loadData() {
 fetch("roads.csv")
   .then(res => res.text())
   .then(text => {
