@@ -1,3 +1,5 @@
+/* ---------- BASE ---------- */
+
 body {
   font-family: Arial, sans-serif;
   margin: 10px;
@@ -7,64 +9,68 @@ body {
 
 .title {
   margin-bottom: 4px;
-  color: #333;
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .subtitle {
   margin-top: 0;
-  margin-bottom: 12px;
-  color: #555;
-  font-size: 14px;
+  margin-bottom: 14px;
+  font-size: 15px;
 }
 
-/* ---------- TABS ---------- */
+/* ---------- TABS (BIG & CLEAR) ---------- */
 
 .tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .tab {
-  padding: 12px 20px;       /* ← bigger tap area */
-  border: none;
-  background: #e0e0e0;
-  cursor: pointer;
+  padding: 16px 0;
+  font-size: 18px;
   font-weight: bold;
-  font-size: 16px;          /* ← readable at a glance */
-  border-radius: 6px;
+  border: none;
+  border-radius: 8px;
+  background: #ddd;
+  cursor: pointer;
 }
 
 .tab.active {
-  background: #ccc;         /* neutral for now */
-  color: #000;
+  background: #bbb;
 }
 
-/* ---------- BUTTON GRIDS ---------- */
+/* ---------- LETTER / WALK GRID (DEFAULT LARGE) ---------- */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .grid button {
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
+  padding: 16px 0;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  border: 1px solid #bbb;
   background: white;
-  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* ---------- COMPACT MODE (WHEN RESULTS SHOW) ---------- */
+
+.grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 6px;
+}
+
+.grid.compact button {
+  padding: 10px 0;
+  font-size: 15px;
   border-radius: 6px;
-}
-
-.grid button:hover {
-  background: #ddd;
-}
-
-.hidden {
-  display: none;
 }
 
 /* ---------- RESULTS LIST ---------- */
@@ -79,6 +85,7 @@ body {
 #results li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 6px 12px;
   border-bottom: 1px solid #ddd;
   background: white;
@@ -93,12 +100,16 @@ body {
 }
 
 .walk {
-  min-width: 60px;          /* ← comfortable spacing */
+  min-width: 70px;
   text-align: right;
   font-weight: bold;
 }
 
-/* ---------- FOOTER ---------- */
+/* ---------- UTILITY ---------- */
+
+.hidden {
+  display: none;
+}
 
 .footer {
   font-size: 11px;

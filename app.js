@@ -1,77 +1,99 @@
-const selectorGrid = document.getElementById("selectorGrid");
+let roads = [];
+
+const letterGrid = document.getElementById("letterGrid");
+const walkGrid = document.getElementById("walkGrid");
 const results = document.getElementById("results");
 
 const roadTab = document.getElementById("roadTab");
 const walkTab = document.getElementById("walkTab");
 
-let roads = [];
-let mode = "road"; // road | walk
+/* ---------- LOAD CSV ---------- */
 
 fetch("roads.csv")
   .then(res => res.text())
   .then(text => {
-    const rows = text.trim().split("\n").slice(1);
+    const lines = text.trim().split("\n").slice(1);
 
-    rows.forEach(row => {
-      const [road, letter, walk] = row.split(",");
-      roads.push({
+    roads = lines.map(line => {
+      const [road, walk] = line.split(",");
+      return {
         road: road.trim(),
-        letter: letter.trim().toUpperCase(),
-        walk: walk.trim()
-      });
+        walk: walk.trim(),
+        letter: road.trim()[0].toUpperCase()
+      };
     });
 
-    buildSelector();
+    buildLetterGrid();
+    buildWalkGrid();
   });
 
-/* -------------------- MODE SWITCHING -------------------- */
+/* ---------- TAB SWITCHING ---------- */
 
-roadTab.onclick = () => {
-  mode = "road";
-  roadTab.classList.add("active");
-  walkTab.classList.remove("active");
-  buildSelector();
+roadTab.onclick = () => switchMode("road");
+walkTab.onclick = () => switchMode("walk");
+
+function switchMode(mode) {
   results.innerHTML = "";
-};
 
-walkTab.onclick = () => {
-  mode = "walk";
-  walkTab.classList.add("active");
-  roadTab.classList.remove("active");
-  buildSelector();
-  results.innerHTML = "";
-};
-
-/* -------------------- BUILD GRID -------------------- */
-
-function buildSelector() {
-  selectorGrid.innerHTML = "";
+  // reset grid size when switching modes
+  letterGrid.classList.remove("compact");
+  walkGrid.classList.remove("compact");
 
   if (mode === "road") {
-    const letters = [...new Set(roads.map(r => r.letter))].sort();
-
-    letters.forEach(letter => {
-      const btn = document.createElement("button");
-      btn.textContent = letter;
-      btn.onclick = () => showByLetter(letter);
-      selectorGrid.appendChild(btn);
-    });
-
+    roadTab.classList.add("active");
+    walkTab.classList.remove("active");
+    letterGrid.classList.remove("hidden");
+    walkGrid.classList.add("hidden");
   } else {
-    const walks = [...new Set(roads.map(r => r.walk))].sort();
-
-    walks.forEach(walk => {
-      const btn = document.createElement("button");
-      btn.textContent = walk;
-      btn.onclick = () => showByWalk(walk);
-      selectorGrid.appendChild(btn);
-    });
+    walkTab.classList.add("active");
+    roadTab.classList.remove("active");
+    walkGrid.classList.remove("hidden");
+    letterGrid.classList.add("hidden");
   }
 }
 
-/* -------------------- RESULTS -------------------- */
+/* ---------- GRID BUILDERS ---------- */
 
-function showByLetter(letter) {
+function buildLetterGrid() {
+  letterGrid.innerHTML = "";
+
+  const letters = [...new Set(
+    roads.map(r => r.letter).filter(l => l >= "A" && l <= "Z")
+  )].sort();
+
+  letters.forEach(letter => {
+    const btn = document.createElement("button");
+    btn.textContent = letter;
+    btn.onclick = () => showRoadsByLetter(letter);
+    letterGrid.appendChild(btn);
+  });
+}
+
+function buildWalkGrid() {
+  walkGrid.innerHTML = "";
+
+  const walks = [...new Set(roads.map(r => r.walk))]
+    .sort((a, b) => parseInt(a) - parseInt(b));
+
+  walks.forEach(walk => {
+    const btn = document.createElement("button");
+    btn.textContent = walk;
+    btn.onclick = () => showRoadsByWalk(walk);
+    walkGrid.appendChild(btn);
+  });
+}
+
+/* ---------- COMPACT MODE ---------- */
+
+function compactGrids() {
+  letterGrid.classList.add("compact");
+  walkGrid.classList.add("compact");
+}
+
+/* ---------- DISPLAY FUNCTIONS ---------- */
+
+function showRoadsByLetter(letter) {
+  compactGrids();
   results.innerHTML = "";
 
   roads
@@ -79,12 +101,16 @@ function showByLetter(letter) {
     .sort((a, b) => a.road.localeCompare(b.road))
     .forEach(r => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${r.road}</span><span class="walk">${r.walk}</span>`;
+      li.innerHTML = `
+        <span class="road">${r.road}</span>
+        <span class="walk">${r.walk}</span>
+      `;
       results.appendChild(li);
     });
 }
 
-function showByWalk(walk) {
+function showRoadsByWalk(walk) {
+  compactGrids();
   results.innerHTML = "";
 
   roads
@@ -92,7 +118,10 @@ function showByWalk(walk) {
     .sort((a, b) => a.road.localeCompare(b.road))
     .forEach(r => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${r.road}</span>`;
+      li.innerHTML = `
+        <span class="road">${r.road}</span>
+        <span class="walk">${r.walk}</span>
+      `;
       results.appendChild(li);
     });
 }
