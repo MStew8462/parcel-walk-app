@@ -17,7 +17,7 @@
     
     h1 { text-align: center; color: #333; margin: 5px 0 15px 0; font-size: 1.2rem; }
 
-    /* TABS - BIGGER TEXT */
+    /* TABS */
     .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab { 
       flex: 1; 
@@ -25,21 +25,21 @@
       cursor: pointer; 
       background: #e0e0e0; 
       border: none; 
-      font-weight: 800; /* Extra Bold */
-      font-size: 18px; /* Big font to fill button */
+      font-weight: 800; 
+      font-size: 18px; 
       border-radius: 6px; 
       color: #555;
       line-height: 1.1;
     }
     .tab.active { background: #007bff; color: white; }
 
-    /* GRIDS - DEFAULT STATE (BIG) */
+    /* GRID STYLES */
     .grid { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); 
       gap: 10px; 
       margin-bottom: 15px; 
-      transition: all 0.3s ease; /* Smooth shrink animation */
+      transition: all 0.3s ease; 
     }
     .grid button { 
       padding: 12px; 
@@ -50,32 +50,38 @@
       border: 1px solid #ccc; 
       border-radius: 6px; 
       color: #333; 
-      touch-action: manipulation; /* Improves touch response */
+      touch-action: manipulation;
     }
     .grid button:active { background: #007bff; color: white; }
     .grid button.selected { background: #0056b3; color: white; border-color: #0056b3; }
 
     /* COMPACT GRID MODE (SHRUNK) */
     .grid.compact {
-      gap: 5px; /* Tighter gap */
-      grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); /* Smaller columns */
+      gap: 5px; 
+      grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); 
       margin-bottom: 10px;
     }
     .grid.compact button {
-      padding: 6px; /* Smaller padding */
-      font-size: 14px; /* Smaller font */
+      padding: 6px; 
+      font-size: 14px; 
     }
 
-    /* RESULTS LIST - SMALLER & COMPACT */
-    ul { list-style: none; padding: 0; margin-top: 0; }
+    /* RESULTS LIST - ULTRA COMPACT & STRIPED */
+    ul { list-style: none; padding: 0; margin-top: 0; border-top: 1px solid #ddd; }
+    
     li { 
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 8px 10px; /* Tighter padding */
+      padding: 6px 8px; /* Very tight padding */
       background: white; 
       border-bottom: 1px solid #eee; 
-      font-size: 14px; /* Smaller list font */
+      font-size: 13px; /* Smaller font for maximum density */
+    }
+
+    /* ZEBRA STRIPING - Alternating Colors */
+    li:nth-child(even) {
+      background-color: #f1f2f6; /* Light grey for even rows */
     }
     
     /* Road Name */
@@ -86,9 +92,11 @@
     
     /* Walk Number - BOLD */
     li span.num { 
-      font-weight: 900; /* Extra Bold */
-      font-size: 1.2em; /* Slightly larger than text */
+      font-weight: 900; 
+      font-size: 1.2em; 
       color: #000;
+      min-width: 30px; /* Aligns numbers neatly */
+      text-align: right;
     }
 
     /* UTILITY */
@@ -131,15 +139,14 @@
           return res.text();
         })
         .then(text => {
-          const lines = text.trim().split("\n").slice(1); // Skip header
+          const lines = text.trim().split("\n").slice(1); 
 
           roadsData = lines.map(line => {
             if (!line || !line.includes(",")) return null;
             
-            // CSV STRUCTURE: Road(0), FirstLetter(1), Walk(2) ...
             const parts = line.split(",");
             const roadName = parts[0]; 
-            const walkNum = parts[2]; // Index 2 is the Walk Number
+            const walkNum = parts[2]; 
 
             if (!roadName) return null;
 
@@ -215,26 +222,19 @@
         });
       }
 
-      // Helper to highlight button and SHRINK grid
       function handleSelection(btn, gridElement) {
-        // Remove selection from all
         document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
-        // Select clicked
         btn.classList.add("selected");
-        // Shrink the grid to make room for list
         gridElement.classList.add("compact");
       }
 
       // --- DISPLAY LIST ---
       function showRoads(list) {
         results.innerHTML = "";
-        
-        // Sort alphabetically
         list.sort((a, b) => a.road.localeCompare(b.road));
         
         list.forEach(r => {
           const li = document.createElement("li");
-          // CLEAN FORMAT: Road on left, Bold Number on right (No "Walk" text)
           li.innerHTML = `<span class="name">${r.road}</span> <span class="num">${r.walk}</span>`;
           results.appendChild(li);
         });
