@@ -2,15 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Road Walk Lookup</title>
+  <title>Sorting Assistant</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>Road Lookup</h1>
+  <!-- Mode Tabs -->
+  <div class="tabs">
+    <button id="roadTab" class="tab active">Road Lookup</button>
+    <button id="walkTab" class="tab">Walk Lookup</button>
+  </div>
 
-  <div id="alphabet"></div>
+  <!-- Selector Grid (letters OR numbers) -->
+  <div id="selectorGrid" class="grid"></div>
+
+  <!-- Results -->
   <ul id="results"></ul>
 
   <script src="app.js"></script>
