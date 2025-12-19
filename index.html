@@ -51,7 +51,7 @@
       line-height: 1.1;
       transition: background 0.2s;
     }
-    .tab.active { background: var(--rm-dark); color: white; } /* Dark active tab looks sharp against red header */
+    .tab.active { background: var(--rm-dark); color: white; }
 
     /* GRIDS */
     .grid { 
@@ -86,17 +86,18 @@
       font-size: 14px; 
     }
 
-    /* RESULTS LIST - ULTRA COMPACT & STRIPED */
-    ul { list-style: none; padding: 0; margin-top: 0; border-top: 2px solid var(--rm-red); }
+    /* RESULTS LIST */
+    /* Removed 'border-top' here to get rid of the red line */
+    ul { list-style: none; padding: 0; margin-top: 0; }
     
     li { 
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 5px 8px; /* ULTRA TIGHT PADDING */
+      padding: 5px 8px; 
       background: white; 
       border-bottom: 1px solid #eee; 
-      font-size: 12px; /* SMALLER FONT */
+      font-size: 12px; 
       line-height: 1.3;
     }
 
@@ -110,7 +111,7 @@
     li span.num { 
       font-weight: 900; 
       font-size: 1.1em; 
-      color: var(--rm-red); /* Royal Mail Red Numbers */
+      color: var(--rm-red); 
       min-width: 30px; 
       text-align: right;
     }
@@ -219,7 +220,6 @@
           btn.textContent = letter;
           btn.onclick = (e) => {
             handleSelection(e.target, letterGrid);
-            // TRUE = Show Walk Number
             showRoads(roadsData.filter(r => r.letter === letter), true);
           };
           letterGrid.appendChild(btn);
@@ -236,7 +236,6 @@
           btn.textContent = walk;
           btn.onclick = (e) => {
             handleSelection(e.target, walkGrid);
-            // FALSE = Hide Walk Number
             showRoads(roadsData.filter(r => r.walk === walk), false);
           };
           walkGrid.appendChild(btn);
@@ -250,7 +249,6 @@
       }
 
       // --- DISPLAY LIST ---
-      // Added 'showNumbers' parameter
       function showRoads(list, showNumbers) {
         results.innerHTML = "";
         list.sort((a, b) => a.road.localeCompare(b.road));
@@ -259,10 +257,8 @@
           const li = document.createElement("li");
           
           if (showNumbers) {
-            // SHOW NUMBER (Road Lookup Mode)
             li.innerHTML = `<span class="name">${r.road}</span> <span class="num">${r.walk}</span>`;
           } else {
-            // HIDE NUMBER (Walk Lookup Mode)
             li.innerHTML = `<span class="name">${r.road}</span>`;
           }
           
