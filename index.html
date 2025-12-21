@@ -9,6 +9,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#D40511">
 
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iI0Q0MDUxMSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIyODAiPlNBPC90ZXh0Pgo8L3N2Zz4=">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iI0Q0MDUxMSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjkwMCIgZm9udC1zaXplPSIyODAiPlNBPC90ZXh0Pgo8L3N2Zz4=">
+
   <title>Sorting Assistant</title>
   
   <style>
@@ -39,7 +42,7 @@
       --tab-text: #cccccc;
     }
 
-    /* --- LAYOUT STRUCTURE (The "Frozen" Magic) --- */
+    /* --- LAYOUT STRUCTURE --- */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       padding: 0; 
@@ -47,9 +50,9 @@
       background-color: var(--bg-color); 
       color: var(--text-color);
       
-      /* THIS MAKES THE APP FULL HEIGHT AND NON-SCROLLING */
+      /* PREVENTS SCROLLING ON THE MAIN BODY */
       height: 100vh; 
-      height: 100dvh; /* Better for mobile browsers */
+      height: 100dvh; 
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -57,18 +60,18 @@
 
     /* TOP SECTION (Fixed) */
     #fixedControls {
-      flex: 0 0 auto; /* Do not grow, do not shrink */
+      flex: 0 0 auto; 
       background-color: var(--bg-color);
       z-index: 10;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Shadow separates header from list */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
       transition: background-color 0.3s;
     }
 
     /* BOTTOM SECTION (Scrollable) */
     #scrollArea {
-      flex: 1 1 auto; /* Grow to fill space */
-      overflow-y: auto; /* Scroll internally */
-      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+      flex: 1 1 auto; 
+      overflow-y: auto; 
+      -webkit-overflow-scrolling: touch; 
     }
 
     /* --- COMPONENT STYLES --- */
@@ -151,7 +154,6 @@
     .grid.compact button { padding: 6px; font-size: 14px; }
 
     /* RESULTS LIST */
-    /* Container padding needed for list items */
     .list-pad { padding: 0 10px; max-width: 600px; margin: 0 auto; }
 
     ul { list-style: none; padding: 0; margin-top: 0; padding-bottom: 40px; }
@@ -346,7 +348,6 @@
         gridElement.classList.add("compact");
         
         // --- AUTO SCROLL TO TOP OF LIST ---
-        // Since the list scrolls independently now, we need to reset its scroll position
         document.getElementById("scrollArea").scrollTop = 0;
       }
 
