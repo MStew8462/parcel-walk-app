@@ -22,7 +22,7 @@
       --text-color: #333333;
       --header-bg: #D40511;
       --card-bg: #ffffff;
-      --card-shadow: 0 1px 2px rgba(0,0,0,0.08); /* Lighter shadow for compact rows */
+      --card-shadow: 0 1px 2px rgba(0,0,0,0.08);
       --btn-bg: #ffffff;
       --btn-border: transparent;
       --btn-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -82,7 +82,6 @@
     }
 
     /* --- COMPONENTS --- */
-    
     header {
       background: linear-gradient(135deg, #D40511, #b0040e);
       color: white;
@@ -177,7 +176,7 @@
     }
     .grid.compact button { padding: 8px 0; font-size: 14px; border-radius: 8px; }
 
-    /* RESULTS LIST - TIGHTER! */
+    /* RESULTS LIST */
     .list-pad { padding: 0 10px; max-width: 600px; margin: 0 auto; }
 
     ul { list-style: none; padding: 0; margin-top: 5px; padding-bottom: 60px; }
@@ -186,11 +185,8 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      
-      /* --- TIGHTER PADDING HERE --- */
       padding: 7px 12px;  
-      margin-bottom: 3px; /* Reduced gap */
-      
+      margin-bottom: 3px;
       background: var(--card-bg); 
       border-radius: 6px; 
       box-shadow: var(--card-shadow); 
@@ -200,7 +196,11 @@
 
     li:nth-child(even) { background-color: var(--stripe-bg); }
     
-    li span.name { font-weight: 600; color: var(--text-color); }
+    li span.name { 
+      font-weight: 600; 
+      color: var(--text-color); 
+      text-transform: uppercase;
+    }
     
     li span.num { 
       font-weight: 900; 
@@ -223,6 +223,7 @@
       font-weight: bold;
       vertical-align: middle;
       box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      text-transform: uppercase;
     }
 
     .hidden { display: none !important; }
@@ -242,11 +243,11 @@
 
       <div class="tabs">
         <button id="roadTab" class="tab active">Road Lookup</button>
-        <button id="walkTab" class="tab">Walk Lookup</button>
+        <button id="dutyTab" class="tab">Duty Lookup</button>
       </div>
 
       <div id="letterGrid" class="grid"></div>
-      <div id="walkGrid" class="grid hidden"></div>
+      <div id="dutyGrid" class="grid hidden"></div>
     </div>
   </div>
 
@@ -260,10 +261,10 @@
     document.addEventListener("DOMContentLoaded", () => {
       
       const letterGrid = document.getElementById("letterGrid");
-      const walkGrid = document.getElementById("walkGrid");
+      const dutyGrid = document.getElementById("dutyGrid");
       const results = document.getElementById("results");
       const roadTab = document.getElementById("roadTab");
-      const walkTab = document.getElementById("walkTab");
+      const dutyTab = document.getElementById("dutyTab");
       const errorBox = document.getElementById("errorBox");
       const themeToggle = document.getElementById("themeToggle");
 
@@ -297,21 +298,25 @@
             
             const parts = line.split(",");
             const roadName = parts[0]; 
-            const walkNum = parts[2]; 
+            
+            // Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
+            const rawDigits = parts[2] ? parts[2].replace(/[^\d]/g, '') : "";
+            const dutyNum = rawDigits !== "" ? String(parseInt(rawDigits, 10)) : "?";
+            
             const notes = parts[4] ? parts[4].trim() : ""; 
 
             if (!roadName) return null;
 
             return {
               road: roadName.trim().replace(/"/g, ''),
-              walk: walkNum ? walkNum.trim() : "?",
+              duty: dutyNum,
               letter: roadName.trim().charAt(0).toUpperCase(),
               note: notes
             };
           }).filter(r => r !== null);
 
           buildLetterGrid();
-          buildWalkGrid();
+          buildDutyGrid();
           switchMode("road");
         })
         .catch(err => {
@@ -324,23 +329,23 @@
         results.innerHTML = "";
         
         letterGrid.classList.remove("compact");
-        walkGrid.classList.remove("compact");
+        dutyGrid.classList.remove("compact");
 
         if (mode === "road") {
           roadTab.classList.add("active");
-          walkTab.classList.remove("active");
+          dutyTab.classList.remove("active");
           letterGrid.classList.remove("hidden");
-          walkGrid.classList.add("hidden");
+          dutyGrid.classList.add("hidden");
         } else {
-          walkTab.classList.add("active");
+          dutyTab.classList.add("active");
           roadTab.classList.remove("active");
-          walkGrid.classList.remove("hidden");
+          dutyGrid.classList.remove("hidden");
           letterGrid.classList.add("hidden");
         }
       }
 
       roadTab.onclick = () => switchMode("road");
-      walkTab.onclick = () => switchMode("walk");
+      dutyTab.onclick = () => switchMode("duty");
 
       // --- BUILDERS ---
       function buildLetterGrid() {
@@ -358,19 +363,20 @@
         });
       }
 
-      function buildWalkGrid() {
-        walkGrid.innerHTML = "";
-        const walks = [...new Set(roadsData.map(r => r.walk))]
-          .sort((a, b) => parseInt(a) - parseInt(b));
+      function buildDutyGrid() {
+        dutyGrid.innerHTML = "";
+        // Sort numerically
+        const duties = [...new Set(roadsData.map(r => r.duty))]
+          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 
-        walks.forEach(walk => {
+        duties.forEach(duty => {
           const btn = document.createElement("button");
-          btn.textContent = walk;
+          btn.textContent = duty;
           btn.onclick = (e) => {
-            handleSelection(e.target, walkGrid);
-            showRoads(roadsData.filter(r => r.walk === walk), false);
+            handleSelection(e.target, dutyGrid);
+            showRoads(roadsData.filter(r => r.duty === duty), false);
           };
-          walkGrid.appendChild(btn);
+          dutyGrid.appendChild(btn);
         });
       }
 
@@ -398,7 +404,7 @@
           html += `</span>`;
 
           if (showNumbers) {
-            html += `<span class="num">${r.walk}</span>`;
+            html += `<span class="num">${r.duty}</span>`;
           }
           
           li.innerHTML = html;
