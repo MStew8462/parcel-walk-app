@@ -268,8 +268,11 @@
       const errorBox = document.getElementById("errorBox");
       const themeToggle = document.getElementById("themeToggle");
 
-      // --- HELPER: MAP 100 TO DPR ---
+      // Helper to display duty 100 as DPR
       const formatDutyLabel = (duty) => (duty === "100" ? "DPR" : duty);
+
+      // Helper to strip leading "THE " for sorting and fallback letter detection
+      const stripThe = (name) => name.replace(/^THE\s+/i, '').trim();
 
       // --- DARK MODE LOGIC ---
       const savedTheme = localStorage.getItem("theme");
@@ -300,20 +303,25 @@
             if (!line || !line.includes(",")) return null;
             
             const parts = line.split(",");
-            const roadName = parts[0]; 
+            const rawRoad = parts[0] ? parts[0].trim().replace(/"/g, '') : "";
+            if (!rawRoad) return null;
+
+            // 1. Read first-letter column (parts[1]), fallback to stripping "THE "
+            const csvLetter = parts[1] ? parts[1].trim().replace(/[^A-Za-z]/g, '').toUpperCase() : "";
+            const computedLetter = stripThe(rawRoad).charAt(0).toUpperCase();
+            const letter = (csvLetter && csvLetter >= "A" && csvLetter <= "Z") ? csvLetter.charAt(0) : computedLetter;
             
-            // Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
+            // 2. Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
             const rawDigits = parts[2] ? parts[2].replace(/[^\d]/g, '') : "";
             const dutyNum = rawDigits !== "" ? String(parseInt(rawDigits, 10)) : "?";
             
+            // 3. Notes
             const notes = parts[4] ? parts[4].trim() : ""; 
 
-            if (!roadName) return null;
-
             return {
-              road: roadName.trim().replace(/"/g, ''),
+              road: rawRoad,
               duty: dutyNum,
-              letter: roadName.trim().charAt(0).toUpperCase(),
+              letter: letter,
               note: notes
             };
           }).filter(r => r !== null);
@@ -398,7 +406,9 @@
       // --- DISPLAY LIST ---
       function showRoads(list, showNumbers) {
         results.innerHTML = "";
-        list.sort((a, b) => a.road.localeCompare(b.road));
+        
+        // Sort alphabetically while ignoring leading "THE "
+        list.sort((a, b) => stripThe(a.road).localeCompare(stripThe(b.road)));
         
         list.forEach(r => {
           const li = document.createElement("li");
