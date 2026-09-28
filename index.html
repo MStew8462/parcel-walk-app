@@ -209,7 +209,7 @@
       background: rgba(212, 5, 17, 0.1); 
       padding: 1px 6px;
       border-radius: 4px;
-      min-width: 30px; 
+      min-width: 38px; 
       text-align: center;
     }
 
@@ -267,6 +267,9 @@
       const dutyTab = document.getElementById("dutyTab");
       const errorBox = document.getElementById("errorBox");
       const themeToggle = document.getElementById("themeToggle");
+
+      // --- HELPER: MAP 100 TO DPR ---
+      const formatDutyLabel = (duty) => (duty === "100" ? "DPR" : duty);
 
       // --- DARK MODE LOGIC ---
       const savedTheme = localStorage.getItem("theme");
@@ -365,13 +368,18 @@
 
       function buildDutyGrid() {
         dutyGrid.innerHTML = "";
-        // Sort numerically
+        
+        // Sort duties numerically, placing 100 (DPR) at the very end
         const duties = [...new Set(roadsData.map(r => r.duty))]
-          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+          .sort((a, b) => {
+            if (a === "100") return 1;
+            if (b === "100") return -1;
+            return parseInt(a, 10) - parseInt(b, 10);
+          });
 
         duties.forEach(duty => {
           const btn = document.createElement("button");
-          btn.textContent = duty;
+          btn.textContent = formatDutyLabel(duty);
           btn.onclick = (e) => {
             handleSelection(e.target, dutyGrid);
             showRoads(roadsData.filter(r => r.duty === duty), false);
@@ -404,7 +412,7 @@
           html += `</span>`;
 
           if (showNumbers) {
-            html += `<span class="num">${r.duty}</span>`;
+            html += `<span class="num">${formatDutyLabel(r.duty)}</span>`;
           }
           
           li.innerHTML = html;
