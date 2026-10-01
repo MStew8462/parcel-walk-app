@@ -209,7 +209,7 @@
       background: rgba(212, 5, 17, 0.1); 
       padding: 1px 6px;
       border-radius: 4px;
-      min-width: 30px; 
+      min-width: 38px; 
       text-align: center;
     }
 
@@ -268,6 +268,12 @@
       const errorBox = document.getElementById("errorBox");
       const themeToggle = document.getElementById("themeToggle");
 
+      // Helper to display duty 100 as DPR
+      const formatDutyLabel = (duty) => (duty === "100" ? "DPR" : duty);
+
+      // Helper to strip leading "THE " for sorting and fallback letter detection
+      const stripThe = (name) => name.replace(/^THE\s+/i, '').trim();
+
       // --- DARK MODE LOGIC ---
       const savedTheme = localStorage.getItem("theme");
       if (savedTheme === "dark") {
@@ -297,20 +303,25 @@
             if (!line || !line.includes(",")) return null;
             
             const parts = line.split(",");
-            const roadName = parts[0]; 
+            const rawRoad = parts[0] ? parts[0].trim().replace(/"/g, '') : "";
+            if (!rawRoad) return null;
+
+            // 1. Read first-letter column (parts[1]), fallback to stripping "THE "
+            const csvLetter = parts[1] ? parts[1].trim().replace(/[^A-Za-z]/g, '').toUpperCase() : "";
+            const computedLetter = stripThe(rawRoad).charAt(0).toUpperCase();
+            const letter = (csvLetter && csvLetter >= "A" && csvLetter <= "Z") ? csvLetter.charAt(0) : computedLetter;
             
-            // Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
+            // 2. Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
             const rawDigits = parts[2] ? parts[2].replace(/[^\d]/g, '') : "";
             const dutyNum = rawDigits !== "" ? String(parseInt(rawDigits, 10)) : "?";
             
+            // 3. Notes
             const notes = parts[4] ? parts[4].trim() : ""; 
 
-            if (!roadName) return null;
-
             return {
-              road: roadName.trim().replace(/"/g, ''),
+              road: rawRoad,
               duty: dutyNum,
-              letter: roadName.trim().charAt(0).toUpperCase(),
+              letter: letter,
               note: notes
             };
           }).filter(r => r !== null);
@@ -365,13 +376,18 @@
 
       function buildDutyGrid() {
         dutyGrid.innerHTML = "";
-        // Sort numerically
+        
+        // Sort duties numerically, placing 100 (DPR) at the very end
         const duties = [...new Set(roadsData.map(r => r.duty))]
-          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+          .sort((a, b) => {
+            if (a === "100") return 1;
+            if (b === "100") return -1;
+            return parseInt(a, 10) - parseInt(b, 10);
+          });
 
         duties.forEach(duty => {
           const btn = document.createElement("button");
-          btn.textContent = duty;
+          btn.textContent = formatDutyLabel(duty);
           btn.onclick = (e) => {
             handleSelection(e.target, dutyGrid);
             showRoads(roadsData.filter(r => r.duty === duty), false);
@@ -390,7 +406,9 @@
       // --- DISPLAY LIST ---
       function showRoads(list, showNumbers) {
         results.innerHTML = "";
-        list.sort((a, b) => a.road.localeCompare(b.road));
+        
+        // Sort alphabetically while ignoring leading "THE "
+        list.sort((a, b) => stripThe(a.road).localeCompare(stripThe(b.road)));
         
         list.forEach(r => {
           const li = document.createElement("li");
@@ -404,7 +422,7 @@
           html += `</span>`;
 
           if (showNumbers) {
-            html += `<span class="num">${r.duty}</span>`;
+            html += `<span class="num">${formatDutyLabel(r.duty)}</span>`;
           }
           
           li.innerHTML = html;
