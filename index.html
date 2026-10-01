@@ -17,7 +17,6 @@
   <style>
     /* --- CSS VARIABLES --- */
     :root {
-      /* LIGHT MODE */
       --bg-color: #f8f9fa;
       --text-color: #333333;
       --header-bg: #D40511;
@@ -36,7 +35,6 @@
       --rm-yellow: #ffcc00;
     }
 
-    /* DARK MODE */
     body.dark-mode {
       --bg-color: #121212;
       --text-color: #f0f0f0;
@@ -52,7 +50,6 @@
       --tab-text: #cccccc;
     }
 
-    /* --- LAYOUT --- */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       padding: 0; 
@@ -81,18 +78,18 @@
       -webkit-overflow-scrolling: touch; 
     }
 
-    /* --- COMPONENTS --- */
+    /* HEADER */
     header {
       background: linear-gradient(135deg, #D40511, #b0040e);
       color: white;
-      padding: 15px 10px;
+      padding: 12px 10px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
     body.dark-mode header { background: #1a1a1a; border-bottom: 1px solid #333; }
 
-    h1 { margin: 0; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; text-align: center; margin-left: 40px; }
+    h1 { margin: 0; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; text-align: center; margin-left: 40px; }
 
     #themeToggle {
       background: rgba(255,255,255,0.2);
@@ -109,19 +106,51 @@
       backdrop-filter: blur(5px);
     }
 
-    .container { padding: 15px 10px 0 10px; max-width: 600px; margin: 0 auto; }
+    .container { padding: 12px 10px 0 10px; max-width: 600px; margin: 0 auto; }
+
+    /* POSTCODE AREA SELECTOR */
+    .area-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      background: rgba(0,0,0,0.06);
+      padding: 4px;
+      border-radius: 30px;
+    }
+    body.dark-mode .area-selector { background: #222; }
+
+    .area-btn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 14px;
+      font-weight: 800;
+      border: none;
+      border-radius: 24px;
+      background: transparent;
+      color: var(--tab-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .area-btn.active {
+      background: var(--rm-dark);
+      color: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    body.dark-mode .area-btn.active { background: #444444; color: #ffffff; }
 
     /* TABS */
-    .tabs { display: flex; gap: 10px; margin-bottom: 15px; background: transparent; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 10px; background: transparent; }
     
     .tab { 
       flex: 1; 
-      padding: 12px;
+      padding: 11px;
       cursor: pointer; 
       background: var(--tab-bg); 
       border: none; 
       font-weight: 700; 
-      font-size: 15px; 
+      font-size: 14px; 
       border-radius: 30px; 
       color: var(--tab-text);
       transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -135,29 +164,27 @@
       box-shadow: 0 4px 10px rgba(212, 5, 17, 0.3);
       transform: translateY(-1px);
     }
-    body.dark-mode .tab.active { background: var(--rm-red); color: white; }
 
     /* GRIDS */
     .grid { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); 
-      gap: 10px; 
+      gap: 8px; 
       margin-bottom: 10px; 
-      transition: all 0.3s ease; 
+      transition: all 0.2s ease; 
     }
     
     .grid button { 
-      padding: 15px 0;
-      font-size: 18px; 
+      padding: 12px 0;
+      font-size: 17px; 
       font-weight: 700; 
       cursor: pointer; 
       background: var(--btn-bg); 
       border: 1px solid var(--btn-border); 
-      border-radius: 12px;
+      border-radius: 10px;
       color: var(--text-color); 
       box-shadow: var(--btn-shadow);
       touch-action: manipulation;
-      transition: transform 0.1s, background 0.2s;
     }
     
     .grid button:active { transform: scale(0.95); }
@@ -171,10 +198,10 @@
 
     /* COMPACT GRID */
     .grid.compact {
-      gap: 6px; 
+      gap: 5px; 
       grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); 
     }
-    .grid.compact button { padding: 8px 0; font-size: 14px; border-radius: 8px; }
+    .grid.compact button { padding: 7px 0; font-size: 13px; border-radius: 8px; }
 
     /* RESULTS LIST */
     .list-pad { padding: 0 10px; max-width: 600px; margin: 0 auto; }
@@ -185,7 +212,7 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 7px 12px;  
+      padding: 8px 12px;  
       margin-bottom: 3px;
       background: var(--card-bg); 
       border-radius: 6px; 
@@ -227,7 +254,7 @@
     }
 
     .hidden { display: none !important; }
-    #errorBox { background: #ffdddd; color: #a00; padding: 15px; margin: 10px; border-radius: 12px; text-align: center; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #errorBox { background: #ffdddd; color: #a00; padding: 12px; margin: 10px; border-radius: 8px; text-align: center; display: none; }
   </style>
 </head>
 <body>
@@ -241,6 +268,13 @@
     <div class="container">
       <div id="errorBox"></div>
 
+      <!-- ME10 / ME9 AREA SELECTOR -->
+      <div class="area-selector">
+        <button id="me10Btn" class="area-btn active">ME10</button>
+        <button id="me9Btn" class="area-btn">ME9</button>
+      </div>
+
+      <!-- LOOKUP TABS -->
       <div class="tabs">
         <button id="roadTab" class="tab active">Road Lookup</button>
         <button id="dutyTab" class="tab">Duty Lookup</button>
@@ -265,18 +299,24 @@
       const results = document.getElementById("results");
       const roadTab = document.getElementById("roadTab");
       const dutyTab = document.getElementById("dutyTab");
+      const me10Btn = document.getElementById("me10Btn");
+      const me9Btn = document.getElementById("me9Btn");
       const errorBox = document.getElementById("errorBox");
       const themeToggle = document.getElementById("themeToggle");
+      const scrollArea = document.getElementById("scrollArea");
 
-      // Helper to display duty 100 as DPR
+      let roadsData = [];
+      let currentArea = "ME10";
+      let currentMode = "road";
+
+      // 100 is displayed as DPR
       const formatDutyLabel = (duty) => (duty === "100" ? "DPR" : duty);
 
-      // Helper to strip leading "THE " for sorting and fallback letter detection
+      // Strip leading "THE " for letter determination and sorting
       const stripThe = (name) => name.replace(/^THE\s+/i, '').trim();
 
-      // --- DARK MODE LOGIC ---
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "dark") {
+      // --- THEME ---
+      if (localStorage.getItem("theme") === "dark") {
         document.body.classList.add("dark-mode");
         themeToggle.textContent = "☀️";
       }
@@ -288,46 +328,50 @@
         localStorage.setItem("theme", isDark ? "dark" : "light");
       };
 
-      // --- LOAD DATA ---
-      let roadsData = [];
-
-      fetch("roads.csv")
+      // --- CSV LOAD (WITH CACHE BUSTER) ---
+      fetch("roads.csv?v=" + new Date().getTime())
         .then(res => {
           if (!res.ok) throw new Error("Could not find roads.csv");
           return res.text();
         })
         .then(text => {
-          const lines = text.trim().split("\n").slice(1); 
+          const lines = text.trim().split("\n").slice(1);
 
-          roadsData = lines.map(line => {
-            if (!line || !line.includes(",")) return null;
-            
+          let currentAreaTag = "ME10";
+
+          lines.forEach(line => {
+            if (!line || !line.includes(",")) return;
+
             const parts = line.split(",");
             const rawRoad = parts[0] ? parts[0].trim().replace(/"/g, '') : "";
-            if (!rawRoad) return null;
 
-            // 1. Read first-letter column (parts[1]), fallback to stripping "THE "
-            const csvLetter = parts[1] ? parts[1].trim().replace(/[^A-Za-z]/g, '').toUpperCase() : "";
-            const computedLetter = stripThe(rawRoad).charAt(0).toUpperCase();
-            const letter = (csvLetter && csvLetter >= "A" && csvLetter <= "Z") ? csvLetter.charAt(0) : computedLetter;
-            
-            // 2. Extract digits only and strip leading zeros (e.g. U070 -> 70, W04 -> 4)
+            // If we hit the blank row gap, switch everything below to ME9
+            if (!rawRoad) {
+              currentAreaTag = "ME9";
+              return;
+            }
+
+            // Calculate letter ignoring "THE "
+            const cleanRoad = stripThe(rawRoad);
+            const letter = cleanRoad.charAt(0).toUpperCase();
+
+            // Duty in column 3 (parts[2])
             const rawDigits = parts[2] ? parts[2].replace(/[^\d]/g, '') : "";
             const dutyNum = rawDigits !== "" ? String(parseInt(rawDigits, 10)) : "?";
-            
-            // 3. Notes
-            const notes = parts[4] ? parts[4].trim() : ""; 
 
-            return {
+            // Notes in column 5 (parts[4])
+            const notes = parts[4] ? parts[4].trim() : "";
+
+            roadsData.push({
               road: rawRoad,
               duty: dutyNum,
               letter: letter,
+              area: currentAreaTag,
               note: notes
-            };
-          }).filter(r => r !== null);
+            });
+          });
 
-          buildLetterGrid();
-          buildDutyGrid();
+          updateGrids();
           switchMode("road");
         })
         .catch(err => {
@@ -335,10 +379,29 @@
           errorBox.innerHTML = `Error: ${err.message}`;
         });
 
-      // --- TABS & MODES ---
-      function switchMode(mode) {
+      // --- AREA SWITCHING ---
+      me10Btn.onclick = () => {
+        if (currentArea === "ME10") return;
+        currentArea = "ME10";
+        me10Btn.classList.add("active");
+        me9Btn.classList.remove("active");
         results.innerHTML = "";
-        
+        updateGrids();
+      };
+
+      me9Btn.onclick = () => {
+        if (currentArea === "ME9") return;
+        currentArea = "ME9";
+        me9Btn.classList.add("active");
+        me10Btn.classList.remove("active");
+        results.innerHTML = "";
+        updateGrids();
+      };
+
+      // --- MODE SWITCHING ---
+      function switchMode(mode) {
+        currentMode = mode;
+        results.innerHTML = "";
         letterGrid.classList.remove("compact");
         dutyGrid.classList.remove("compact");
 
@@ -358,39 +421,41 @@
       roadTab.onclick = () => switchMode("road");
       dutyTab.onclick = () => switchMode("duty");
 
-      // --- BUILDERS ---
-      function buildLetterGrid() {
+      // --- UPDATE GRIDS ---
+      function updateGrids() {
+        letterGrid.classList.remove("compact");
+        dutyGrid.classList.remove("compact");
+
+        const filtered = roadsData.filter(r => r.area === currentArea);
+
+        // 1. Letters for current area
         letterGrid.innerHTML = "";
-        const letters = [...new Set(roadsData.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
-        
+        const letters = [...new Set(filtered.map(r => r.letter).filter(l => l >= "A" && l <= "Z"))].sort();
+
         letters.forEach(letter => {
           const btn = document.createElement("button");
           btn.textContent = letter;
           btn.onclick = (e) => {
             handleSelection(e.target, letterGrid);
-            showRoads(roadsData.filter(r => r.letter === letter), true);
+            showRoads(filtered.filter(r => r.letter === letter), true);
           };
           letterGrid.appendChild(btn);
         });
-      }
 
-      function buildDutyGrid() {
+        // 2. Duties for current area
         dutyGrid.innerHTML = "";
-        
-        // Sort duties numerically, placing 100 (DPR) at the very end
-        const duties = [...new Set(roadsData.map(r => r.duty))]
-          .sort((a, b) => {
-            if (a === "100") return 1;
-            if (b === "100") return -1;
-            return parseInt(a, 10) - parseInt(b, 10);
-          });
+        const duties = [...new Set(filtered.map(r => r.duty))].sort((a, b) => {
+          if (a === "100") return 1;
+          if (b === "100") return -1;
+          return parseInt(a, 10) - parseInt(b, 10);
+        });
 
         duties.forEach(duty => {
           const btn = document.createElement("button");
           btn.textContent = formatDutyLabel(duty);
           btn.onclick = (e) => {
             handleSelection(e.target, dutyGrid);
-            showRoads(roadsData.filter(r => r.duty === duty), false);
+            showRoads(filtered.filter(r => r.duty === duty), false);
           };
           dutyGrid.appendChild(btn);
         });
@@ -400,31 +465,25 @@
         document.querySelectorAll(".grid button").forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         gridElement.classList.add("compact");
-        document.getElementById("scrollArea").scrollTop = 0;
+        scrollArea.scrollTop = 0;
       }
 
-      // --- DISPLAY LIST ---
+      // --- RESULTS DISPLAY ---
       function showRoads(list, showNumbers) {
         results.innerHTML = "";
-        
-        // Sort alphabetically while ignoring leading "THE "
         list.sort((a, b) => stripThe(a.road).localeCompare(stripThe(b.road)));
-        
+
         list.forEach(r => {
           const li = document.createElement("li");
-          
+
           let html = `<span class="name">${r.road}`;
-          
-          if (r.note) {
-            html += `<span class="note-pill">${r.note}</span>`;
-          }
-          
+          if (r.note) html += `<span class="note-pill">${r.note}</span>`;
           html += `</span>`;
 
           if (showNumbers) {
             html += `<span class="num">${formatDutyLabel(r.duty)}</span>`;
           }
-          
+
           li.innerHTML = html;
           results.appendChild(li);
         });
