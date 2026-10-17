@@ -89,7 +89,16 @@
     }
     body.dark-mode header { background: #1a1a1a; border-bottom: 1px solid #333; }
 
-    h1 { margin: 0; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; text-align: center; margin-left: 40px; }
+    h1 { 
+      margin: 0; 
+      font-size: 1.05rem; 
+      font-weight: 800; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      flex-grow: 1; 
+      text-align: center; 
+      margin-left: 40px; 
+    }
 
     #themeToggle {
       background: rgba(255,255,255,0.2);
@@ -104,11 +113,12 @@
       align-items: center;
       justify-content: center;
       backdrop-filter: blur(5px);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .container { padding: 12px 10px 0 10px; max-width: 600px; margin: 0 auto; }
 
-    /* AREA TOGGLES (ME10 vs ME9) */
+    /* AREA SELECTOR (ME10 / ME9) */
     .area-selector {
       display: flex;
       gap: 8px;
@@ -141,7 +151,7 @@
     }
     body.dark-mode .area-btn.active { background: #eeeeee; color: #111111; }
 
-    /* TABS */
+    /* LOOKUP TABS */
     .tabs { display: flex; gap: 10px; margin-bottom: 10px; background: transparent; }
     
     .tab { 
@@ -197,7 +207,6 @@
       box-shadow: 0 4px 12px rgba(212, 5, 17, 0.4);
     }
 
-    /* COMPACT GRID */
     .grid.compact {
       gap: 5px; 
       grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); 
@@ -206,6 +215,28 @@
 
     /* RESULTS LIST */
     .list-pad { padding: 0 10px; max-width: 600px; margin: 0 auto; }
+
+    /* WALKTHROUGH LINK ROW (RED TEXT, SAME FONT SIZE) */
+    .walkthrough-link-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      margin-bottom: 3px;
+      background: var(--card-bg);
+      border-radius: 6px;
+      box-shadow: var(--card-shadow);
+      font-size: 13px;
+      line-height: 1.2;
+      cursor: pointer;
+      color: var(--rm-red);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .walkthrough-link-row:active {
+      opacity: 0.7;
+    }
 
     ul { list-style: none; padding: 0; margin-top: 5px; padding-bottom: 60px; }
     
@@ -254,6 +285,197 @@
       text-transform: uppercase;
     }
 
+    /* --- WALKTHROUGH FULL-SCREEN VIEW --- */
+    #walkthroughModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-color);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    #walkthroughModal.open {
+      transform: translateY(0);
+    }
+
+    .walk-header {
+      background: linear-gradient(135deg, #D40511, #b0040e);
+      color: white;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+    body.dark-mode .walk-header { background: #1a1a1a; border-bottom: 1px solid #333; }
+
+    .walk-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .walk-btn {
+      background: rgba(0,0,0,0.25);
+      border: none;
+      color: white;
+      font-size: 13.5px;
+      padding: 6px 12px;
+      border-radius: 18px;
+      cursor: pointer;
+      font-weight: 700;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .walk-btn:active {
+      background: rgba(0,0,0,0.45);
+    }
+
+    .walk-controls {
+      background-color: var(--bg-color);
+      padding: 10px 10px 6px 10px;
+      flex: 0 0 auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .walk-scroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 10px 80px 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: calc(100% - 20px);
+      box-sizing: border-box;
+    }
+
+    /* LOOP ACCORDION CARDS */
+    .loop-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.04);
+      transition: opacity 0.2s;
+    }
+
+    .loop-card.completed {
+      opacity: 0.55;
+    }
+
+    .loop-card-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .loop-check {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--rm-red);
+      cursor: pointer;
+    }
+
+    .loop-meta {
+      flex: 1;
+    }
+
+    .loop-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .loop-card.completed .loop-title {
+      text-decoration: line-through;
+    }
+
+    .loop-park {
+      font-size: 11.5px;
+      color: #777;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    body.dark-mode .loop-park { color: #aaa; }
+
+    .loop-arrow {
+      font-size: 14px;
+      color: #999;
+      transition: transform 0.2s ease;
+      font-weight: bold;
+    }
+
+    .loop-card.expanded .loop-arrow {
+      transform: rotate(90deg);
+    }
+
+    /* LOOP STEPS */
+    .loop-steps {
+      display: none;
+      padding: 0 14px 10px 14px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    body.dark-mode .loop-steps { border-top-color: #333; }
+
+    .loop-card.expanded .loop-steps {
+      display: block;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: baseline;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      font-size: 13.5px;
+      line-height: 1.3;
+    }
+    body.dark-mode .step-item { border-bottom-color: #2a2a2a; }
+
+    .step-item:last-child { border-bottom: none; }
+
+    .step-detail {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .step-note {
+      background-color: var(--rm-yellow);
+      color: #333;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .sat-badge {
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 6px;
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+    body.dark-mode .sat-badge { background: #312e81; color: #c7d2fe; }
+
     .hidden { display: none !important; }
     #errorBox { background: #ffdddd; color: #a00; padding: 12px; margin: 10px; border-radius: 8px; text-align: center; display: none; }
   </style>
@@ -288,7 +510,36 @@
 
   <div id="scrollArea">
     <div class="list-pad">
+      <!-- Walkthrough red text link row -->
+      <div id="walkthroughLinkRow" class="walkthrough-link-row hidden">
+        <span>Walkthrough</span>
+      </div>
+
       <ul id="results"></ul>
+    </div>
+  </div>
+
+  <!-- WALKTHROUGH FULL-SCREEN VIEW -->
+  <div id="walkthroughModal">
+    <div class="walk-header">
+      <div style="font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">WALKTHROUGH GUIDE</div>
+      <div class="walk-actions">
+        <button id="resetChecksBtn" class="walk-btn">Reset</button>
+        <button id="closeWalkthroughBtn" class="walk-btn">Close</button>
+      </div>
+    </div>
+
+    <div class="walk-controls">
+      <div class="container" style="padding-top: 0;">
+        <div class="tabs" style="margin-bottom: 4px;">
+          <button id="walkWeekdayBtn" class="tab active">Weekday (Mon–Fri)</button>
+          <button id="walkSaturdayBtn" class="tab">Saturday</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="walk-scroll">
+      <div id="loopsContainer"></div>
     </div>
   </div>
 
@@ -306,9 +557,19 @@
       const themeToggle = document.getElementById("themeToggle");
       const scrollArea = document.getElementById("scrollArea");
 
+      // Walkthrough elements
+      const walkthroughLinkRow = document.getElementById("walkthroughLinkRow");
+      const resetChecksBtn = document.getElementById("resetChecksBtn");
+      const closeWalkthroughBtn = document.getElementById("closeWalkthroughBtn");
+      const walkthroughModal = document.getElementById("walkthroughModal");
+      const walkWeekdayBtn = document.getElementById("walkWeekdayBtn");
+      const walkSaturdayBtn = document.getElementById("walkSaturdayBtn");
+      const loopsContainer = document.getElementById("loopsContainer");
+
       let roadsData = [];
       let currentArea = "ME10";
       let currentMode = "road";
+      let walkDayMode = "weekday";
 
       const formatDutyLabel = (duty) => (duty === "100" ? "DPR" : duty);
       const stripThe = (name) => name.replace(/^THE\s+/i, '').trim();
@@ -342,7 +603,6 @@
             const parts = line.split(",");
             const rawRoad = parts[0] ? parts[0].trim().replace(/"/g, '') : "";
 
-            // If we hit blank road or empty letter column after YPRES DRIVE, switch to ME9
             if (!rawRoad || parts[1].trim() === "") {
               reachedME9 = true;
             }
@@ -351,8 +611,6 @@
 
             const cleanRoad = stripThe(rawRoad);
             const letter = cleanRoad.charAt(0).toUpperCase();
-
-            // Duty in column 3 (parts[2])
             const rawDigits = parts[2] ? parts[2].replace(/[^\d]/g, '') : "";
             const dutyNum = rawDigits !== "" ? String(parseInt(rawDigits, 10)) : "?";
             const notes = parts[4] ? parts[4].trim() : "";
@@ -365,7 +623,6 @@
               note: notes
             });
 
-            // YPRES DRIVE is the last road of ME10
             if (rawRoad === "YPRES DRIVE") {
               reachedME9 = true;
             }
@@ -386,6 +643,7 @@
         me10Btn.classList.add("active");
         me9Btn.classList.remove("active");
         results.innerHTML = "";
+        walkthroughLinkRow.classList.add("hidden");
         updateGrids();
       };
 
@@ -395,6 +653,7 @@
         me9Btn.classList.add("active");
         me10Btn.classList.remove("active");
         results.innerHTML = "";
+        walkthroughLinkRow.classList.add("hidden");
         updateGrids();
       };
 
@@ -402,6 +661,7 @@
       function switchMode(mode) {
         currentMode = mode;
         results.innerHTML = "";
+        walkthroughLinkRow.classList.add("hidden");
         letterGrid.classList.remove("compact");
         dutyGrid.classList.remove("compact");
 
@@ -421,7 +681,6 @@
       roadTab.onclick = () => switchMode("road");
       dutyTab.onclick = () => switchMode("duty");
 
-      // Grid Builder
       function updateGrids() {
         letterGrid.classList.remove("compact");
         dutyGrid.classList.remove("compact");
@@ -437,6 +696,7 @@
           btn.textContent = letter;
           btn.onclick = (e) => {
             handleSelection(e.target, letterGrid);
+            walkthroughLinkRow.classList.add("hidden");
             showRoads(filtered.filter(r => r.letter === letter), true);
           };
           letterGrid.appendChild(btn);
@@ -455,6 +715,14 @@
           btn.textContent = formatDutyLabel(duty);
           btn.onclick = (e) => {
             handleSelection(e.target, dutyGrid);
+
+            // Show Walkthrough link in red text if Duty 1 or Duty 2 is selected
+            if (currentArea === "ME10" && (duty === "1" || duty === "2")) {
+              walkthroughLinkRow.classList.remove("hidden");
+            } else {
+              walkthroughLinkRow.classList.add("hidden");
+            }
+
             showRoads(filtered.filter(r => r.duty === duty), false);
           };
           dutyGrid.appendChild(btn);
@@ -487,6 +755,342 @@
           results.appendChild(li);
         });
       }
+
+      // ==========================================
+      // --- WALKTHROUGH FEATURE (12 LOOPS DATA) ---
+      // ==========================================
+      const WALKTHROUGH_DATA = [
+        {
+          loop: 1,
+          name: "Murston Road",
+          park: "29 Murston Road",
+          steps: [
+            { address: "Murston Road 56-38", days: "Monday - Saturday", notes: "" },
+            { address: "Poulsen Court", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 36-2", days: "Monday - Saturday", notes: "" },
+            { address: "Belvoir House", days: "Monday - Saturday", notes: "" },
+            { address: "1 Murston Road 1-4", days: "Monday - Saturday", notes: "" },
+            { address: "3 Murston Road 1-4", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 5-87", days: "Monday - Saturday", notes: "" },
+            { address: "New Inn", days: "Monday - Saturday", notes: "Pub" },
+            { address: "Wheatcroft Close 1-6", days: "Monday - Saturday", notes: "" },
+            { address: "Prices Court", days: "Monday - Saturday", notes: "" },
+            { address: "Wheatcroft Close 7-8", days: "Monday - Saturday", notes: "" },
+            { address: "Harkness Court", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 102-58", days: "Monday - Saturday", notes: "" },
+            { address: "Dickson Court", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 2,
+          name: "Eagles Close",
+          park: "Eagles Close",
+          steps: [
+            { address: "Eagles Close 63-61", days: "Monday - Saturday", notes: "" },
+            { address: "Wild Ash Croft 40-1", days: "Monday - Saturday", notes: "" },
+            { address: "Eagles Close 10-1", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 3,
+          name: "Portland Avenue",
+          park: "Post Box Portland Avenue",
+          steps: [
+            { address: "Portland Avenue 86-2", days: "Monday - Saturday", notes: "" },
+            { address: "The Cedars Portland Avenue", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 147-151", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 153a-c", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 155", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 157-199", days: "Monday - Saturday", notes: "" },
+            { address: "Murston Road 142-104", days: "Monday - Saturday", notes: "" },
+            { address: "Portland Avenue 1-105", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 4,
+          name: "Thorn Walk",
+          park: "Road Sign Broom Road",
+          steps: [
+            { address: "Thorn Walk 63-1", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 119-147", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 134-118", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 116-106", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Close 1-9", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 5,
+          name: "Sunnybank",
+          park: "Top of Broom Road",
+          steps: [
+            { address: "Sunnybank 1-13", days: "Monday - Saturday", notes: "" },
+            { address: "Sunnybank School", days: "Monday - Friday", notes: "School" },
+            { address: "Sunnybank 15-37", days: "Monday - Saturday", notes: "" },
+            { address: "Sunnybank 40-20", days: "Monday - Saturday", notes: "" },
+            { address: "Sunnybank 18-2", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 104-98", days: "Monday - Saturday", notes: "" },
+            { address: "Gaze Court", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 96-72", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 59-71", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 73-109", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 111-117", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 44-58", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 41-47", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 30-42", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 33-39", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 29-1", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 6,
+          name: "Hugh Price Close",
+          park: "Top of Broom Road",
+          steps: [
+            { address: "Hugh Price Close 63-62", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 64-65", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 61-58", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 57-56", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 55-54", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 66-71", days: "Saturday", notes: "" },
+            { address: "Hugh Price Close 53-1", days: "Saturday", notes: "" },
+            { address: "Woodcoombe Club", days: "Saturday", notes: "Working Mens Club" },
+            { address: "Woodcoombe Mews 1-8", days: "Saturday", notes: "" },
+            { address: "Church Road 101-95", days: "Saturday", notes: "" },
+            { address: "Church Road 93-83", days: "Saturday", notes: "" },
+            { address: "Golden Court 5-9", days: "Saturday", notes: "" },
+            { address: "Golden Court 1-4", days: "Saturday", notes: "" },
+            { address: "Church Road 81-29", days: "Saturday", notes: "" },
+            { address: "Dolphin Road 4-1", days: "Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 7,
+          name: "Fern Walk",
+          park: "18 Broom Road",
+          steps: [
+            { address: "Fern Walk 56-1", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 57-19", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 17-1", days: "Monday - Saturday", notes: "" },
+            { address: "The Cedars Broom Road", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 2-18", days: "Monday - Saturday", notes: "" },
+            { address: "Whiting Crescent 2-28", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 20-30", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 32", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 34-40", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 42-44", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 46-56", days: "Monday - Saturday", notes: "" },
+            { address: "Broom Road 58-70", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 8,
+          name: "Oak Road",
+          park: "18 Broom Road",
+          steps: [
+            { address: "Murston Road 140-128", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 78", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 76-54", days: "Saturday", notes: "" },
+            { address: "Cranbrook Close", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 52-2", days: "Saturday", notes: "" },
+            { address: "Oak Road 1-47", days: "Saturday", notes: "" },
+            { address: "Murston Road 126-106", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 9,
+          name: "Fairservice Close",
+          park: "65-77 Oak Road",
+          steps: [
+            { address: "Oak Road 79", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 65-77", days: "Saturday", notes: "" },
+            { address: "Fairservice Close 1-4", days: "Monday - Saturday", notes: "" },
+            { address: "Fairservice Close 31-29", days: "Monday - Saturday", notes: "" },
+            { address: "Fairservice Close 32-34", days: "Monday - Saturday", notes: "" },
+            { address: "Fairservice Close 5-18", days: "Monday - Saturday", notes: "" },
+            { address: "Fairservice Close 19-28", days: "Monday - Saturday", notes: "" },
+            { address: "Fairservice Close 35-37", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 78-86", days: "Saturday", notes: "" },
+            { address: "Oak Road 49-57", days: "Saturday", notes: "" },
+            { address: "Hutchings Close 1-2", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 59-63", days: "Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 10,
+          name: "Hutchings Close",
+          park: "65-77 Oak Road",
+          steps: [
+            { address: "Hutchings Close 3-21", days: "Monday - Saturday", notes: "" },
+            { address: "Hutchings Close 39-29", days: "Monday - Saturday", notes: "" },
+            { address: "Hutchings Close 40-42", days: "Monday - Saturday", notes: "" },
+            { address: "Hutchings Close 22-28", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 96-88", days: "Saturday", notes: "" },
+            { address: "Oak Road 79-91", days: "Saturday", notes: "" },
+            { address: "Woodger Close 1-19", days: "Monday - Saturday", notes: "" },
+            { address: "Woodger Close 20-30", days: "Monday - Saturday", notes: "" },
+            { address: "Woodger Close 31-33", days: "Monday - Saturday", notes: "" },
+            { address: "Woodger Close 34-44", days: "Monday - Saturday", notes: "" },
+            { address: "Oak Road 93-109a", days: "Saturday", notes: "" },
+            { address: "Oak Road 134-98", days: "Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 11,
+          name: "Tonge Road",
+          park: "1-15 All Saints Road",
+          steps: [
+            { address: "Tonge Road 145-5", days: "Monday - Saturday", notes: "" },
+            { address: "Jarretts Court", days: "Monday - Saturday", notes: "Flats" },
+            { address: "3 Tonge Road", days: "Monday - Saturday", notes: "Flats" },
+            { address: "Murston House", days: "Monday - Saturday", notes: "Flats" },
+            { address: "Homeview Terrace 36-27", days: "Monday - Saturday", notes: "" },
+            { address: "Tonge Road 40-126", days: "Monday - Saturday", notes: "" }
+          ]
+        },
+        {
+          loop: 12,
+          name: "Church Road",
+          park: "Jarretts Court Wykeham Road",
+          steps: [
+            { address: "Church Road 24-10", days: "Monday - Saturday", notes: "" },
+            { address: "Tonge Road 2", days: "Monday - Saturday", notes: "" },
+            { address: "Bramble Lodge", days: "Monday - Saturday", notes: "Flats" },
+            { address: "Church Road 9-1", days: "Monday - Saturday", notes: "" },
+            { address: "Swan Close 12-1", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 14", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 1-3", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 15-16", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 4-5", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 17-18", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 6-7", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 19-20", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 8-9", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 21-22", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 10-11", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 23-26", days: "Monday - Saturday", notes: "" },
+            { address: "Homeview 12-13", days: "Monday - Saturday", notes: "" },
+            { address: "Smeed Close 8-5", days: "Monday - Saturday", notes: "" },
+            { address: "Smeed Close 9-17", days: "Monday - Saturday", notes: "" },
+            { address: "Smeed Close 4-1", days: "Monday - Saturday", notes: "" },
+            { address: "Wykeham Road 1-27", days: "Monday - Saturday", notes: "" },
+            { address: "All Saints Road 84-2", days: "Monday - Saturday", notes: "" },
+            { address: "All Saints Road 15-1", days: "Monday - Saturday", notes: "" }
+          ]
+        }
+      ];
+
+      // --- RENDER WALKTHROUGH ---
+      function renderWalkthrough() {
+        loopsContainer.innerHTML = "";
+        const isSat = (walkDayMode === "saturday");
+        const savedChecked = JSON.parse(localStorage.getItem("completedLoops") || "{}");
+
+        WALKTHROUGH_DATA.forEach(loopData => {
+          const validSteps = loopData.steps.filter(s => {
+            if (isSat) {
+              return s.days !== "Monday - Friday";
+            } else {
+              return s.days !== "Saturday";
+            }
+          });
+
+          if (validSteps.length === 0) return;
+
+          const card = document.createElement("div");
+          card.className = "loop-card";
+          card.id = `loopCard-${loopData.loop}`;
+
+          const isCompleted = !!savedChecked[loopData.loop];
+          if (isCompleted) card.classList.add("completed");
+
+          // Header
+          const header = document.createElement("div");
+          header.className = "loop-card-header";
+
+          const chk = document.createElement("input");
+          chk.type = "checkbox";
+          chk.className = "loop-check";
+          chk.checked = isCompleted;
+          chk.onclick = (e) => {
+            e.stopPropagation();
+            const checked = chk.checked;
+            card.classList.toggle("completed", checked);
+            savedChecked[loopData.loop] = checked;
+            localStorage.setItem("completedLoops", JSON.stringify(savedChecked));
+          };
+
+          const meta = document.createElement("div");
+          meta.className = "loop-meta";
+          meta.innerHTML = `
+            <div class="loop-title">
+              <span>Loop ${loopData.loop}: ${loopData.name}</span>
+              <span class="loop-arrow">❯</span>
+            </div>
+            <div class="loop-park">Park: ${loopData.park}</div>
+          `;
+
+          header.appendChild(chk);
+          header.appendChild(meta);
+
+          // Steps list (No step numbers)
+          const stepsBox = document.createElement("div");
+          stepsBox.className = "loop-steps";
+
+          validSteps.forEach(s => {
+            const stepRow = document.createElement("div");
+            stepRow.className = "step-item";
+
+            let noteHtml = s.notes ? `<span class="step-note">${s.notes}</span>` : "";
+            let satHtml = (isSat && s.days === "Saturday") ? `<span class="sat-badge">Sat Only</span>` : "";
+
+            stepRow.innerHTML = `
+              <span class="step-detail">${s.address} ${noteHtml} ${satHtml}</span>
+            `;
+            stepsBox.appendChild(stepRow);
+          });
+
+          header.addEventListener("click", () => {
+            card.classList.toggle("expanded");
+          });
+
+          card.appendChild(header);
+          card.appendChild(stepsBox);
+          loopsContainer.appendChild(card);
+        });
+      }
+
+      // Reset button: clear all checked loops
+      resetChecksBtn.onclick = () => {
+        localStorage.removeItem("completedLoops");
+        renderWalkthrough();
+      };
+
+      // Day mode toggles
+      walkWeekdayBtn.onclick = () => {
+        if (walkDayMode === "weekday") return;
+        walkDayMode = "weekday";
+        walkWeekdayBtn.classList.add("active");
+        walkSaturdayBtn.classList.remove("active");
+        renderWalkthrough();
+      };
+
+      walkSaturdayBtn.onclick = () => {
+        if (walkDayMode === "saturday") return;
+        walkDayMode = "saturday";
+        walkSaturdayBtn.classList.add("active");
+        walkWeekdayBtn.classList.remove("active");
+        renderWalkthrough();
+      };
+
+      // Open walkthrough when clicking the red text link
+      walkthroughLinkRow.onclick = () => {
+        renderWalkthrough();
+        walkthroughModal.classList.add("open");
+      };
+
+      closeWalkthroughBtn.onclick = () => {
+        walkthroughModal.classList.remove("open");
+      };
 
     });
   </script>
