@@ -33,6 +33,7 @@
       --rm-red: #D40511;
       --rm-dark: #222222;
       --rm-yellow: #ffcc00;
+      --rm-blue: #0066cc;
     }
 
     body.dark-mode {
@@ -48,6 +49,7 @@
       
       --tab-bg: #333333;
       --tab-text: #cccccc;
+      --rm-blue: #4da3ff;
     }
 
     body { 
@@ -216,7 +218,7 @@
     /* RESULTS LIST */
     .list-pad { padding: 0 10px; max-width: 600px; margin: 0 auto; }
 
-    /* WALKTHROUGH LINK ROW (RED TEXT, SAME FONT SIZE) */
+    /* WALKTHROUGH LINK ROW */
     .walkthrough-link-row {
       display: flex;
       align-items: center;
@@ -451,6 +453,12 @@
       flex: 1;
       font-weight: 600;
       color: var(--text-color);
+    }
+
+    /* BLUE TEXT FOR COLLECTIONS */
+    .step-detail.collection-step {
+      color: var(--rm-blue);
+      font-weight: 700;
     }
 
     .step-note {
@@ -757,7 +765,7 @@
       }
 
       // ==============================================================
-      // --- WALKTHROUGH FEATURE (EXACT DATA FROM EXCEL SPREADSHEET) ---
+      // --- WALKTHROUGH FEATURE (12 LOOPS + COLLECTIONS) ---
       // ==============================================================
       const WALKTHROUGH_DATA = [
         {
@@ -796,6 +804,7 @@
           name: "Portland Avenue",
           park: "Post Box Portland Avenue",
           steps: [
+            { address: "Empty Portland Avenue Post Box", days: "Monday - Saturday", notes: "", isCollection: true },
             { address: "Portland Avenue 86-2", days: "Monday - Saturday", notes: "" },
             { address: "Portland Avenue 1a-7", days: "Monday - Saturday", notes: "" },
             { address: "Wells House", days: "Monday - Saturday", notes: "Flats" },
@@ -976,6 +985,15 @@
             { address: "All Saints Road 84-2", days: "Monday - Saturday", notes: "" },
             { address: "All Saints Road 15-1", days: "Monday - Saturday", notes: "" }
           ]
+        },
+        {
+          loop: 13,
+          name: "Collections",
+          park: "",
+          steps: [
+            { address: "Collect from Murston Post Office", days: "Monday - Saturday", notes: "", isCollection: true },
+            { address: "Collect from Royal Mail Locker, East Street", days: "Saturday", notes: "", isCollection: true }
+          ]
         }
       ];
 
@@ -1021,12 +1039,16 @@
 
           const meta = document.createElement("div");
           meta.className = "loop-meta";
+
+          const titleText = loopData.loop === 13 ? "Collections" : `Loop ${loopData.loop}: ${loopData.name}`;
+          const parkHtml = loopData.park ? `<div class="loop-park">Park: ${loopData.park}</div>` : "";
+
           meta.innerHTML = `
             <div class="loop-title">
-              <span>Loop ${loopData.loop}: ${loopData.name}</span>
+              <span>${titleText}</span>
               <span class="loop-arrow">❯</span>
             </div>
-            <div class="loop-park">Park: ${loopData.park}</div>
+            ${parkHtml}
           `;
 
           header.appendChild(chk);
@@ -1040,11 +1062,12 @@
             const stepRow = document.createElement("div");
             stepRow.className = "step-item";
 
+            const collectionClass = s.isCollection ? " collection-step" : "";
             let noteHtml = s.notes ? `<span class="step-note">${s.notes}</span>` : "";
             let satHtml = (isSat && s.days === "Saturday") ? `<span class="sat-badge">Sat Only</span>` : "";
 
             stepRow.innerHTML = `
-              <span class="step-detail">${s.address} ${noteHtml} ${satHtml}</span>
+              <span class="step-detail${collectionClass}">${s.address} ${noteHtml} ${satHtml}</span>
             `;
             stepsBox.appendChild(stepRow);
           });
